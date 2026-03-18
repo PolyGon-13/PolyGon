@@ -36,7 +36,7 @@ const App: React.FC = () => {
           <div className="nav-container">
             <div className="nav-brand"><Link to="/">PolyGon</Link></div>
             <div className="nav-links">
-              <Link to="/">Portfolio</Link>
+              <Link to="/">Profile</Link>
               <Link to="/study">Study</Link>
               <Link to="/settings">Settings</Link>
             </div>
