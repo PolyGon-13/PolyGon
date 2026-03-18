@@ -1,0 +1,175 @@
+
+<meta charset="utf-8">
+<html lang="ko">
+<head>
+    <link rel="stylesheet" type="text/css" href="./../style.css" />
+    <title>Gazebo 2D LiDAR 시뮬레이션 예제 실습</title>
+</head>
+<body id="tt-body-page" class="">
+<div id="wrap" class="wrap-right">
+    <div id="container">
+        <main class="main ">
+            <div class="area-main">
+                <div class="area-view">
+                    <div class="article-header">
+                        <div class="inner-article-header">
+                            <div class="box-meta">
+                                <h2 class="title-article">Gazebo 2D LiDAR 시뮬레이션 예제 실습</h2>
+                                <div class="box-info">
+                                    <p class="category">Robotics/ROS2</p>
+                                    <p class="date">2025-05-16 18:11:12</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="article-view">
+                        <div class="contents_style">
+                            <p data-ke-size="size16"><a href="https://with-rl.tistory.com/entry/Gazebo%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-2D-LiDAR-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%ED%95%98%EA%B8%B0" target="_blank" rel="noopener&nbsp;noreferrer">https://with-rl.tistory.com/entry/Gazebo%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-2D-LiDAR-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%ED%95%98%EA%B8%B0</a></p>
+<figure id="og_1747384104609" contenteditable="false" data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="article" data-og-title="Gazebo를 이용해 2D LiDAR 시뮬레이션 하기" data-og-description="이번 포스팅은 이전 포스팅에서 구축한 환경을 기반으로 Gazebo를 이용해서 2D LiDAR를 부착하고 동작을 확인해 보는 과정입니다. 이 포스트는 다음 영상의 내용을 기반으로 개발하고자 하는 로봇" data-og-host="with-rl.tistory.com" data-og-source-url="https://with-rl.tistory.com/entry/Gazebo%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-2D-LiDAR-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%ED%95%98%EA%B8%B0" data-og-url="https://with-rl.tistory.com/entry/Gazebo%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-2D-LiDAR-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%ED%95%98%EA%B8%B0" data-og-image="https://scrap.kakaocdn.net/dn/b1DwX6/hyYTlc96sa/FWDdg1dK3GOUy5XNTUPvV0/img.png?width=800&amp;height=443&amp;face=0_0_800_443,https://scrap.kakaocdn.net/dn/FA1zy/hyYU3pg1jL/kWygq43wyAkXQkqcobPcPk/img.png?width=800&amp;height=443&amp;face=0_0_800_443,https://scrap.kakaocdn.net/dn/bc3rpD/hyYVaaQEmT/AaxUU8oeFley5JpH49OMCK/img.png?width=1535&amp;height=838&amp;face=0_0_1535_838"><a href="https://with-rl.tistory.com/entry/Gazebo%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-2D-LiDAR-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%ED%95%98%EA%B8%B0" target="_blank" rel="noopener" data-source-url="https://with-rl.tistory.com/entry/Gazebo%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%B4-2D-LiDAR-%EC%8B%9C%EB%AE%AC%EB%A0%88%EC%9D%B4%EC%85%98-%ED%95%98%EA%B8%B0">
+<div class="og-image" style="background-image: url('https://scrap.kakaocdn.net/dn/b1DwX6/hyYTlc96sa/FWDdg1dK3GOUy5XNTUPvV0/img.png?width=800&amp;height=443&amp;face=0_0_800_443,https://scrap.kakaocdn.net/dn/FA1zy/hyYU3pg1jL/kWygq43wyAkXQkqcobPcPk/img.png?width=800&amp;height=443&amp;face=0_0_800_443,https://scrap.kakaocdn.net/dn/bc3rpD/hyYVaaQEmT/AaxUU8oeFley5JpH49OMCK/img.png?width=1535&amp;height=838&amp;face=0_0_1535_838');">&nbsp;</div>
+<div class="og-text">
+<p class="og-title" data-ke-size="size16">Gazebo를 이용해 2D LiDAR 시뮬레이션 하기</p>
+<p class="og-desc" data-ke-size="size16">이번 포스팅은 이전 포스팅에서 구축한 환경을 기반으로 Gazebo를 이용해서 2D LiDAR를 부착하고 동작을 확인해 보는 과정입니다. 이 포스트는 다음 영상의 내용을 기반으로 개발하고자 하는 로봇</p>
+<p class="og-host" data-ke-size="size16">with-rl.tistory.com</p>
+</div>
+</a></figure>
+<p data-ke-size="size16">해당 블로그를 참고하며 실습하였다.</p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<p data-ke-size="size16"><a href="https://github.com/PolyGon-13/URDF_Study" target="_blank" rel="noopener&nbsp;noreferrer">https://github.com/PolyGon-13/URDF_Study</a></p>
+<figure id="og_1747384164296" contenteditable="false" data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="object" data-og-title="GitHub - PolyGon-13/URDF_Study" data-og-description="Contribute to PolyGon-13/URDF_Study development by creating an account on GitHub." data-og-host="github.com" data-og-source-url="https://github.com/PolyGon-13/URDF_Study" data-og-url="https://github.com/PolyGon-13/URDF_Study" data-og-image="https://scrap.kakaocdn.net/dn/l49sO/hyYRvAVuKs/2SHHXUbVI17W5J07AffiuK/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600,https://scrap.kakaocdn.net/dn/90WP7/hyYU068tbl/jWdOaKQNdtGIQEGsTmK3d1/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600"><a href="https://github.com/PolyGon-13/URDF_Study" target="_blank" rel="noopener" data-source-url="https://github.com/PolyGon-13/URDF_Study">
+<div class="og-image" style="background-image: url('https://scrap.kakaocdn.net/dn/l49sO/hyYRvAVuKs/2SHHXUbVI17W5J07AffiuK/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600,https://scrap.kakaocdn.net/dn/90WP7/hyYU068tbl/jWdOaKQNdtGIQEGsTmK3d1/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600');">&nbsp;</div>
+<div class="og-text">
+<p class="og-title" data-ke-size="size16">GitHub - PolyGon-13/URDF_Study</p>
+<p class="og-desc" data-ke-size="size16">Contribute to PolyGon-13/URDF_Study development by creating an account on GitHub.</p>
+<p class="og-host" data-ke-size="size16">github.com</p>
+</div>
+</a></figure>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<pre id="code_1747384244668" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>cd ros_ws
+colcon build
+source install/setup.bash
+ros2 launch urdf_tutorial lidar.launch.py world:=src/urdf_tutorial/gazebo/with_robot.world</code></pre>
+<p data-ke-size="size16">패키지 최상위 폴더(여기서는 ros_ws)에서 빌드 후 ros2 launch 명령 실행</p>
+<p data-ke-size="size16">&nbsp;</p>
+<pre id="code_1747384677723" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>rviz2</code></pre>
+<pre id="code_1747384782722" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>rvizs -d ros_ws/src/urdf_tutorial/rviz/[file_name]</code></pre>
+<p data-ke-size="size16">터미널을 하나 더 열어(Ctrl+Alt+T) 기본 rviz 실행은 위의 명령을, 따로 실행할 rviz 파일이 있다면 아래 명령을 실행</p>
+<p data-ke-size="size16">&nbsp;</p>
+<p><figure class="imageblock alignLeft" >
+    <span data-lightbox="lightbox">
+        <img src="./img/Screenshot from 2025-05-16 17-40-56.png"  />
+    </span>
+    <figcaption>Gazebo와 Rviz 환경에서 2D LiDAR가 정상적으로 작동하는 것을 확인</figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<pre id="code_1747384976265" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>ros2 run teleop_twist_keyboard teleop_twist_keyboard</code></pre>
+<p data-ke-size="size16">터미널을 하나 더 열어 위 명령을 실행하여 /teleop_twist_keyboard 노드 실행</p>
+<p data-ke-size="size16">&nbsp;</p>
+<pre id="code_1747385097902" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>ros2 topic echo /scan</code></pre>
+<p data-ke-size="size16">터미널을 하나 더 열어 이제 2D LiDAR가 받아오는 토픽 값을 확인하기 위해 위 명령을 실행하면...</p>
+<p><figure class="imageblock alignLeft" >
+    <span data-lightbox="lightbox">
+        <img src="./img/Screenshot from 2025-05-16 17-45-52.png"  />
+    </span>
+    <figcaption>2D LiDAR가 받아오는 토픽 값</figcaption>
+</figure></p>
+<p data-ke-size="size16">ranges와 intensities 값은 각각 센서에서 측정한 거리 값들의 배열과 각 거리 측정에 대응하는 반사강도인데 samples가 360이어서 360개에 해당하는 값이 각각 계속 표시되어 다른 값들을 볼 수가 없다.</p>
+<pre id="code_1747386166232" class="python" data-ke-language="python" data-ke-type="codeblock"><code>import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+
+class ScanFieldPrinter(Node):
+    def __init__(self):
+        super().__init__('scan_filter_node')
+        self.subscription = self.create_subscription(
+            LaserScan,
+            '/scan',
+            self.listener_callback,
+            10
+            )
+        
+    def listener_callback(self, msg: LaserScan):
+        print(f"header.stamp.sec : {msg.header.stamp.sec}")
+        print(f"header.stamp.nanosec : {msg.header.stamp.nanosec}")
+        print(f"header.frame_id : {msg.header.frame_id}")
+        print(f"angle_min : {msg.angle_min}")
+        print(f"angle_max : {msg.angle_max}")
+        print(f"angle_increment : {msg.angle_increment}")
+        print(f"time_increment : {msg.time_increment}")
+        print(f"scan_time : {msg.scan_time}")
+        print(f"range_min : {msg.range_min}")
+        print(f"range_max : {msg.range_max}")
+        print('---------------------------')
+
+def main(args=None):
+    rclpy.init(args=args)
+    node=ScanFieldPrinter()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    node.destroy_node()
+    rclpy.shutdown()
+
+if __name__=='__main__':
+    main()</code></pre>
+<p data-ke-size="size16">ranges와 intensities 값을 제외한 토픽 값만을 출력하도록 새로운 노드를 Python 코드로 작성해주고, (/ros_ws/src/urdf_tutorial/urdf_tutorial에 위치)</p>
+<pre id="code_1747386216051" class="python" data-ke-language="python" data-ke-type="codeblock"><code>entry_points={
+    'console_scripts': [
+        'lidar_topic_filter=urdf_tutorial.lidar_topic_filter:main',
+    ],
+},</code></pre>
+<p data-ke-size="size16">setup.py의 마지막 부분을 이렇게 수정해주면 ros2 노드로 통합 가능</p>
+<p data-ke-size="size16">&nbsp;</p>
+<pre id="code_1747386417758" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>cd ros_ws
+colcon build
+source install/setup.bash
+ros2 launch urdf_tutorial lidar.launch.py world:=src/urdf_tutorial/gazebo/with_robot.world</code></pre>
+<pre id="code_1747386455306" class="awk" data-ke-type="codeblock" data-ke-language="bash"><code>rvizs -d ros_ws/src/urdf_tutorial/rviz/[file_name]</code></pre>
+<pre id="code_1747386507394" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>cd ros_ws
+source install/setup.bash
+ros2 run urdf_tutorial lidar_topic_filter</code></pre>
+<p data-ke-size="size16">위 명령들을 각 터미널에서 실행시켜주면 필요한 값들만 잘 출력되는 것을 확인할 수 있다.</p>
+<p><figure class="imageblock alignCenter" >
+    <span data-lightbox="lightbox">
+        <img src="./img/Screenshot from 2025-05-16 18-06-11.png"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p><figure class="imageblock alignCenter" >
+    <span data-lightbox="lightbox">
+        <img src="./img/Screenshot from 2025-05-16 18-09-54.png"  />
+    </span>
+    <figcaption>rqt_graph</figcaption>
+</figure></p>
+<pre id="code_1747386617572" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>rqt_graph</code></pre>
+<p data-ke-size="size16">rqt_graph를 확인하면 위와 같다.</p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<p data-ke-size="size16">+ ros2 launch 명령에서 world 인자는 작성한 코드에서는 직접적으로 받아주는 코드를 보지 못해서 어디서 이를 받아들여 실행시키는건지 궁금해서 찾아보았다.</p>
+<pre id="code_1747384411786" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>gazebo=IncludeLaunchDescription(
+    PythonLaunchDescriptionSource(
+        [os.path.join(get_package_share_directory("gazebo_ros"),"launch","gazebo.launch.py")]
+    ),
+)</code></pre>
+<p data-ke-size="size16">world는 gazebo의 월드와 관련된 인자이고 lidar.launch.py의 해당 부분에서 gazebo_ros/launch/gazebo.launch.py를 실행시키는 부분이 있으므로 해당 파일 부근을 찾아보았다. (/opt/ros/humble/share/gazebo_ros/launch)</p>
+<pre id="code_1747384605646" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>return LaunchDescription([
+    DeclareLaunchArgument(
+        'world', default_value=[FindPackageShare('gazebo_ros'), '/worlds/empty.world'],
+        description='Specify world file name. Defaults to an empty world.'
+    ),</code></pre>
+<p data-ke-size="size16">같은 파일 위치의 gzserver.launch.py 파일 97번째 줄에 해당 내용이 포함되어 있는 것을 확인하였다. 기본적으로 empty.world를 실행시키고 인자를 따로 받는다면 해당 world를 실행시키는 것 같다.</p>
+                        </div>
+                        <br/>
+                        <div class="tags">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

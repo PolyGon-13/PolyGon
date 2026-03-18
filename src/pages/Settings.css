@@ -1,0 +1,184 @@
+.vscode-settings-container {
+  width: 100%;
+  max-width: 1050px;
+  background-color: var(--bg-color);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 200px);
+  margin: 0 auto;
+}
+
+.vscode-settings-search {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+}
+
+.vscode-settings-search input {
+  width: 100%;
+  padding: 6px 12px;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+body.dark-theme .vscode-settings-search input {
+  background-color: #1e1e1e;
+  border-color: #3c3c3c;
+}
+
+body.dark-theme .vscode-settings-search input:focus {
+  border-color: #007acc;
+}
+
+.vscode-settings-search input:focus {
+  border-color: var(--primary-color);
+}
+
+.vscode-settings-layout {
+  display: flex;
+  flex: 1;
+}
+
+.vscode-sidebar {
+  width: 260px;
+  min-width: 260px;
+  border-right: 1px solid var(--border-color);
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vscode-tabs {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vscode-tabs li {
+  padding: 6px 24px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.1s ease, background-color 0.1s ease;
+}
+
+.vscode-tabs li:hover {
+  color: var(--text-primary);
+}
+
+.vscode-tabs li.active {
+  color: var(--text-primary);
+  font-weight: 500;
+  background-color: rgba(128, 128, 128, 0.08);
+}
+
+.vscode-main {
+  flex: 1;
+  padding: 24px 48px;
+  background-color: var(--bg-color);
+  overflow-y: auto;
+}
+
+.vscode-group-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.vscode-setting-item {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.vscode-setting-info {
+  margin-bottom: 12px;
+}
+
+.vscode-setting-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.vscode-setting-name span {
+  font-weight: 600;
+}
+
+.vscode-setting-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.vscode-input {
+  width: 320px;
+  max-width: 100%;
+  padding: 6px 8px;
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  outline: none;
+}
+
+body.dark-theme .vscode-input {
+  background-color: #3c3c3c;
+  border-color: #3c3c3c;
+}
+
+.vscode-input:focus {
+  border-color: var(--primary-color);
+}
+
+/* Reduced Neumorphic Toggle for Dark Mode */
+.mini-theme-toggle {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+  padding: 0 3px;
+  background: #e2e8f0;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1), inset -1px -1px 3px rgba(255,255,255,0.7);
+}
+
+body.dark-theme .mini-theme-toggle {
+  background: #1e293b;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.4), inset -1px -1px 3px rgba(255,255,255,0.05);
+}
+
+.mini-toggle-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--white);
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+  transform: translateX(0);
+}
+
+body.dark-theme .mini-toggle-thumb {
+  background: #334155;
+  transform: translateX(24px);
+}
