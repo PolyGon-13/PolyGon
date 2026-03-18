@@ -1,0 +1,140 @@
+
+<meta charset="utf-8">
+<html lang="ko">
+<head>
+    <link rel="stylesheet" type="text/css" href="./../style.css" />
+    <title>벡터장, 선적분</title>
+</head>
+<body id="tt-body-page" class="">
+<div id="wrap" class="wrap-right">
+    <div id="container">
+        <main class="main ">
+            <div class="area-main">
+                <div class="area-view">
+                    <div class="article-header">
+                        <div class="inner-article-header">
+                            <div class="box-meta">
+                                <h2 class="title-article">벡터장, 선적분</h2>
+                                <div class="box-info">
+                                    <p class="category">Math/Calculus</p>
+                                    <p class="date">2025-12-01 14:03:49</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="article-view">
+                        <div class="contents_style">
+                            <h3 data-ke-size="size23">벡터장 (Vector Field)</h3>
+<p data-ke-size="size16">일반적으로 벡터장은 정의역이 ℝ^2(혹은 ℝ^3)에 속하는 어떤 점들의 집합이고, 치역이 V_2(혹은 V_3)에 속하는 어떤 벡터들의 집합인 함수</p>
+<p data-ke-size="size16">P와 Q는 이변수의 스칼라 함수들이고, 이들을 벡터장과 구분하기 위해 스칼라장이라고 부름.</p>
+<p><figure class="imageblock alignLeft" width="650" height="298" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob.jpg" width="650" height="298"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<h3 style="color: #000000; text-align: start;" data-ke-size="size23">&nbsp;</h3>
+<h3 style="color: #000000; text-align: start;" data-ke-size="size23">기울기장 (Gradient Field)</h3>
+<p><figure class="imageblock alignLeft" width="648" height="360" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_1.jpg" width="648" height="360"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<h3 data-ke-size="size23">선적분 (Line Integral)</h3>
+<p data-ke-size="size16">구간 [a,b]에서 적분하는 대신에 곡선 C 위에서 적분하는 것</p>
+<p><figure class="imageblock alignLeft" width="599" height="343" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_2.jpg" width="599" height="343"  />
+    </span>
+    <figcaption></figcaption>
+</figure><figure class="imageblock alignLeft" width="601" height="428" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_3.jpg" width="601" height="428"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p style="color: #333333; text-align: start;" data-ke-size="size16">&nbsp;</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size16">일반적으로 매개방정식은 매개변수 t의 증가에 대응하는 양의 방향으로 곡선 C의 방향을 결정함</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size16">-C가 C와 똑같은 점으로 구성되지만 반대 방향을 갖는 곡선이라 하면 아래와 같음</p>
+<p><figure class="imageblock alignLeft" width="306" height="192" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_4.jpg" width="306" height="192"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p style="color: #333333; text-align: start;" data-ke-size="size16">하지만 호의 길이에 관하여 적분하면 곡선의 방향을 반대로 하더라도 선적분의 값은 변하지 않음</p>
+<p style="color: #333333; text-align: start;" data-ke-size="size16">이것은 C의 방향이 반대로 될 때 <span style="background-color: #ffffff; color: #001d35; text-align: start;">&Delta;x_i와 <span style="background-color: #ffffff; color: #001d35; text-align: start;">&Delta;y_i의 부호는 변하지만 항상 <span style="background-color: #ffffff; color: #001d35; text-align: start;">&Delta;s_i는 양수가 되기 때문 ( <span style="background-color: #ffffff; color: #001d35; text-align: start;">&Delta;s_i는 부분 호의 길이)</span></span></span></span></p>
+<p><figure class="imageblock alignLeft" width="321" height="108" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_5.jpg" width="321" height="108"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<h3 data-ke-size="size23">선적분의 기본정리</h3>
+<p data-ke-size="size16">아래 정리는 보존적 벡터장(잠재적 함수 f의 기울기 벡터)의 선적분은 C의 끝점에서 f의 함숫값을 구하여 간단하게 계산할 수 있음을 의미</p>
+<p data-ke-size="size16"><span style="background-color: #ffffff; color: #474747; text-align: start;">&nabla;f의 선적분은 f의 순변화량</span></p>
+<p data-ke-size="size16"><span style="background-color: #ffffff; color: #474747; text-align: start;">C_1과 C_2가 동일한 시작점과 끝점을 가진 매끄러운 곡선이라면 선적분의 값은 동일</span></p>
+<p><figure class="imageblock alignLeft" width="563" height="241" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_6.jpg" width="563" height="241"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<h4 data-ke-size="size20">경로 독립성 (Independent of Path)</h4>
+<p><figure class="imageblock alignLeft" width="628" height="176" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_7.jpg" width="628" height="176"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">* 닫힌 곡선 : 한 곡선의 시작점과 끝점이 같음</p>
+<p data-ke-size="size16">* 열린 영역 : D에 속하는 임의의 점 P에 대해 D에 완전히 포함되는 중심 P를 갖는 원판이 존재</p>
+<p data-ke-size="size16">* 연결 영역 : D에 속하는 임의의 두 점이 D에 포함되는 어떤 경로에 의해 연결 될 수 있음</p>
+<p><figure class="imageblock alignLeft" width="628" height="135" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_8.jpg" width="628" height="135"  />
+    </span>
+    <figcaption></figcaption>
+</figure><figure class="imageblock alignLeft" width="625" height="170" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_9.jpg" width="625" height="170"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<h3 data-ke-size="size23">보존적 벡터장과 잠재적 함수</h3>
+<p data-ke-size="size16">벡터장 F가 보존적인지의 여부를 결정하는 방법</p>
+<p data-ke-size="size16">F가 보존적 벡터장임을 알았다면 잠재적 함수 f를 찾는 방법</p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">* 단순 곡선 : 양 끝점 사이의 어떤 곳에서도 서로 교차하는 점이 없는 곡선</p>
+<p data-ke-size="size16">* 단순 연결 영역 : D 안에 있는 모든 단순 닫힌 곡선이 D 안에 있는 점들만을 둘러싸고 있는 연결 영역 D</p>
+<p><figure class="imageblock alignLeft" width="571" height="253" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_10.jpg" width="571" height="253"  />
+    </span>
+    <figcaption></figcaption>
+</figure><figure class="imageblock alignLeft" width="636" height="205" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob_11.jpg" width="636" height="205"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+                        </div>
+                        <br/>
+                        <div class="tags">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,976 @@
+
+<meta charset="utf-8">
+<html lang="ko">
+<head>
+    <link rel="stylesheet" type="text/css" href="./../style.css" />
+    <title>Unity - ROS2 - A0509 통신</title>
+</head>
+<body id="tt-body-page" class="">
+<div id="wrap" class="wrap-right">
+    <div id="container">
+        <main class="main ">
+            <div class="area-main">
+                <div class="area-view">
+                    <div class="article-header">
+                        <div class="inner-article-header">
+                            <div class="box-meta">
+                                <h2 class="title-article">Unity - ROS2 - A0509 통신</h2>
+                                <div class="box-info">
+                                    <p class="category">Robotics/ROS2</p>
+                                    <p class="date">2025-08-26 21:34:50</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="article-view">
+                        <div class="contents_style">
+                            <h4 data-ke-size="size20">[Environment]</h4>
+<p data-ke-size="size16">Ubuntum 22.04<br />ROS2 Humble<br />Unity 6.0 (6000.0.55f1)</p>
+<hr data-ke-type="horizontalRule" data-ke-style="style5" />
+<h3 data-ke-size="size23">Unity에서 A0509 모델을 움직이면 각 조인트의 관절 값을 ROS2 토픽으로 퍼블리시하고 해당 관절값을 Doosan Robotics의 A0509나 Gazebo 등의 시뮬레이션 환경에 트윈하는 프로젝트</h3>
+<h3 data-ke-size="size23">1. 패키지 구성</h3>
+<p data-ke-size="size16"><a href="https://github.com/DoosanRobotics/doosan-robot2" target="_blank" rel="noopener"><span>https://github.com/DoosanRobotics/doosan-robot2</span></a></p>
+<figure data-ke-type="opengraph" data-og-title="GitHub - DoosanRobotics/doosan-robot2: ROS 2 for Doosan Robot" data-ke-align="alignCenter" data-og-description="ROS 2 for Doosan Robot. Contribute to DoosanRobotics/doosan-robot2 development by creating an account on GitHub." data-og-host="github.com" data-og-source-url="https://github.com/DoosanRobotics/doosan-robot2" data-og-image="https://blog.kakaocdn.net/dna/hOQSU/hyZDTT2enO/AAAAAAAAAAAAAAAAAAAAAPOB9K7iX956VvlArftyNjEUVS0h9cQWUPR9gtReX6mW/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1756652399&amp;allow_ip=&amp;allow_referer=&amp;signature=P1SEOUpZ8emlGiXps7Ux4JDWjZw%3D" data-og-url="https://github.com/DoosanRobotics/doosan-robot2"><a href="https://github.com/DoosanRobotics/doosan-robot2" target="_blank" rel="noopener" data-source-url="https://github.com/DoosanRobotics/doosan-robot2">
+<div class="og-image" style="background-image: url('https://blog.kakaocdn.net/dna/hOQSU/hyZDTT2enO/AAAAAAAAAAAAAAAAAAAAAPOB9K7iX956VvlArftyNjEUVS0h9cQWUPR9gtReX6mW/img.png?credential=yqXZFxpELC7KVnFOS48ylbz2pIh7yKj8&amp;expires=1756652399&amp;allow_ip=&amp;allow_referer=&amp;signature=P1SEOUpZ8emlGiXps7Ux4JDWjZw%3D');">&nbsp;</div>
+<div class="og-text">
+<p class="og-title" data-ke-size="size16">GitHub - DoosanRobotics/doosan-robot2: ROS 2 for Doosan Robot</p>
+<p class="og-desc" data-ke-size="size16">ROS 2 for Doosan Robot. Contribute to DoosanRobotics/doosan-robot2 development by creating an account on GitHub.</p>
+<p class="og-host" data-ke-size="size16">github.com</p>
+</div>
+</a></figure>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>sudo apt-get update
+sudo apt-get install -y libpoco-dev libyaml-cpp-dev wget \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ros-humble-control-msgs ros-humble-realtime-tools ros-humble-xacro \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ros-humble-joint-state-publisher-gui ros-humble-ros2-control \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ros-humble-ros2-controllers ros-humble-gazebo-msgs ros-humble-moveit-msgs \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dbus-x11 ros-humble-moveit-configs-utils ros-humble-moveit-ros-move-group \
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ros-humble-gazebo-ros-pkgs ros-humble-ros-gz-sim ros-humble-ign-ros2-control</code></pre>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" &gt; /etc/apt/sources.list.d/gazebo-stable.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install -y libignition-gazebo6-dev ros-humble-gazebo-ros-pkgs ros-humble-ros-gz-sim ros-humble-ros-gz</code></pre>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>source /opt/ros/humble/install/setup.bash
+
+mkdir -p ~/Doosan_A0509/src
+cd ~/Doosan_A0509/src
+git clone -b humble https://github.com/doosan-robotics/doosan-robot2.git
+
+rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y</code></pre>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>cd ~/Doosan_A0509/src/doosan-robot2
+chmod +x ./install_emulator.sh
+sudo ./install_emulator.sh</code></pre>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>cd ~/Doosan_A0509
+colcon build
+source install/setup.bash</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<h3 data-ke-size="size23">2. [1차 목표] : ROS2와 Gazebo 통신</h3>
+<p data-ke-size="size16">- 앞서 git clone한 패키지 내 아래 경로의 파이썬 파일을 다음과 같이 수정해주자. -&gt; dsr_example2 패키지에서 dsr_common2 패키지에 있는 파일을 import 해야 하므로 import 부분 코드의 경로 수정이 필요하다. (해당 패키지의 필요한 파일을 전부 복사해서 dsr_example2에 붙여넣는 방법도 있겠지만 파일 구조가 복잡해지고 괜히 빌드 과정에서 꼬일 것 같아서 시도해보지 않았다.)<br />- 또한 해당 위치에는 dance_m1013.py가 있겠지만 우리가 사용할 모델은 a0509이므로 보기좋게 파일 이름을 바꾸어 주었다.<br />/Doosan_A0509/src/doosan-robot2/dsr_example2/dsr_example/dsr_example/demo/dance_a0509.py</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>import rclpy
+import os
+import sys
+
+# for single robot
+ROBOT_ID&nbsp;&nbsp; = "dsr01"
+ROBOT_MODEL= "a0509"
+
+from dsr_common2 import DR_init #&nbsp;&nbsp;기존과 달라진 부분
+
+DR_init.__dsr__id&nbsp;&nbsp; = ROBOT_ID
+DR_init.__dsr__model = ROBOT_MODEL
+
+def main(args=None):
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rclpy.init(args=args)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;node = rclpy.create_node('dsr_example_demo_py', namespace=ROBOT_ID)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DR_init.__dsr__node = node
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from dsr_common2.DSR_ROBOT2 import print_ext_result, movej, movel, movec, move_periodic, move_spiral, set_velx, set_accx, DR_BASE, DR_TOOL, DR_AXIS_X, DR_MV_MOD_ABS # 기존과 달라진 부분
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# print_result("Import DSR_ROBOT2 Success!")
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;except ImportError as e:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(f"Error importing DSR_ROBOT2 : {e}")
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#################
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;### Set values ##
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set_velx(30, 20)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set_accx(60, 40)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JReady = [0, -20, 110, 0, 60, 0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TCP_POS = [0, 0, 0, 0, 0, 0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J00 = [-180, 0, -145, 0, -35, 0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J01r = [-180.0, 71.4, -145.0, 0.0, -9.7, 0.0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J02r = [-180.0, 67.7, -144.0, 0.0, 76.3, 0.0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J03r = [-180.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J04r = [-90.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J04r1 = [-90.0, 30.0, -60.0, 0.0, 30.0, -0.0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J04r2 = [-90.0, -45.0, 90.0, 0.0, -45.0, -0.0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J04r3 = [-90.0, 60.0, -120.0, 0.0, 60.0, -0.0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J04r4 = [-90.0, 0.0, -0.0, 0.0, 0.0, -0.0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J05r = [-144.0, -4.0, -84.8, -90.9, 54.0, -1.1]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J07r = [-152.4, 12.4, -78.6, 18.7, -68.3, -37.7]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J08r = [-90.0, 30.0, -120.0, -90.0, -90.0, 0.0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JEnd = [0.0, -12.6, 101.1, 0.0, 91.5, -0.0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dREL1 = [0, 0, 350, 0, 0, 0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dREL2 = [0, 0, -350, 0, 0, 0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;velx = [0, 0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;accx = [0, 0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vel_spi = [400, 400]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acc_spi = [150, 150]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;J1 = [81.2, 20.8, 127.8, 162.5, 56.1, -37.1]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X0 = [-88.7, 799.0, 182.3, 95.7, 93.7, 133.9]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X1 = [304.2, 871.8, 141.5, 99.5, 84.9, 133.4]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X2 = [437.1, 876.9, 362.1, 99.6, 84.0, 132.1]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;X3 = [-57.9, 782.4, 478.4, 99.6, 84.0, 132.1]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;amp = [0, 0, 0, 30, 30, 0]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;period = [0, 0, 0, 3, 6, 0]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x01 = [423.6, 334.5, 651.2, 84.7, -180.0, 84.7]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x02 = [423.6, 34.5, 951.2, 68.2, -180.0, 68.2]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x03 = [423.6, -265.5, 651.2, 76.1, -180.0, 76.1]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x04 = [423.6, 34.5, 351.2, 81.3, -180.0, 81.3]
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x0204c = [x02, x04]
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;###########################
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;### A variety of motions ##
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while rclpy.ok():
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(JReady, v=20, a=20)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J1, v=0, a=0, t=3)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(X3, velx, accx, t=2.5)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for i in range(0, 1):
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(X2, velx, accx, t=2.5, radius=50, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(X1, velx, accx, t=1.5, radius=50, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(X0, velx, accx, t=2.5) 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(X1, velx, accx, t=2.5, radius=50, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(X2, velx, accx, t=1.5, radius=50, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(X3, velx, accx, t=2.5, radius=50, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J00, v=60, a=60, t=6)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J01r, v=0, a=0, t=2, radius=100, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J02r, v=0, a=0, t=2, radius=50, mod=DR_MV_MOD_ABS) 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J03r, v=0, a=0, t=2)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J04r, v=0, a=0, t=1.5)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J04r1, v=0, a=0, t=2, radius=50, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J04r2, v=0, a=0, t=4, radius=50, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J04r3, v=0, a=0, t=4, radius=50, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J04r4, v=0, a=0, t=2)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J05r, v=0, a=0, t=2.5, radius=100, mod=DR_MV_MOD_ABS) 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(dREL1, velx, accx, t=1, radius=50, ref=DR_TOOL, mod=DR_MV_MOD_ABS) 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(dREL2, velx, accx, t=1.5, radius=100, ref=DR_TOOL, mod=DR_MV_MOD_ABS) 
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J07r, v=60, a=60, t=1.5, radius=100, mod=DR_MV_MOD_ABS) 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(J08r, v=60, a=60, t=2)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movej(JEnd, v=60, a=60, t=4)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;move_periodic(amp, period, 0, 1, ref=DR_TOOL)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;move_spiral(rev=3, rmax=200, lmax=100, v=vel_spi, a=acc_spi, t=0, axis=DR_AXIS_X, ref=DR_TOOL)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(x01, velx, accx, t=2)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(x04, velx, accx, t=2, radius=100, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(x03, velx, accx, t=2, radius=100, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(x02, velx, accx, t=2, radius=100, ref=DR_BASE, mod=DR_MV_MOD_ABS)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movel(x01, velx, accx, t=2)&nbsp;&nbsp;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;movec(pos1=x02, pos2=x04, v=velx, a=accx, t=4, radius=360, mod=DR_MV_MOD_ABS, ref=DR_BASE)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print('good bye!')
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rclpy.shutdown()
+
+if __name__ == "__main__":
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;main()</code></pre>
+<p data-ke-size="size16">&nbsp;<br />다음은 아래 경로의 setup.py를 수정하자. demo 폴더 안에 우리가 사용할 dance_a0509.py (위에서 이름을 바꾸었으므로 m1013이 아닌 a0509 되어 있을것이다.)가 있기에 demo 폴더도 패키지로 인식하기 위해 packages 옵션 부분을 수정해주고 위에서 파일이름을 바꾸었으므로 entry_points 옵션도 그에 맞게 수정해주어야 한다.<br />/Doosan_A0509/src/doosan-robot2/dsr_example2/dsr_example/setup.py</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>from setuptools import find_packages, setup
+
+package_name = 'dsr_example'
+
+setup(
+&nbsp;&nbsp;&nbsp;&nbsp;name=package_name,
+&nbsp;&nbsp;&nbsp;&nbsp;version='0.0.0',
+&nbsp;&nbsp;&nbsp;&nbsp;packages=find_packages(include=['dsr_example','dsr_example.*']),
+&nbsp;&nbsp;&nbsp;&nbsp;data_files=[
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('share/ament_index/resource_index/packages',
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;['resource/' + package_name]),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;('share/' + package_name, ['package.xml']),
+&nbsp;&nbsp;&nbsp;&nbsp;],
+&nbsp;&nbsp;&nbsp;&nbsp;install_requires=['setuptools'],
+&nbsp;&nbsp;&nbsp;&nbsp;zip_safe=True,
+&nbsp;&nbsp;&nbsp;&nbsp;maintainer='gossi',
+&nbsp;&nbsp;&nbsp;&nbsp;maintainer_email='mincheol710313@gmail.com',
+&nbsp;&nbsp;&nbsp;&nbsp;description='TODO: Package description',
+&nbsp;&nbsp;&nbsp;&nbsp;license='BSD',
+&nbsp;&nbsp;&nbsp;&nbsp;tests_require=['pytest'],
+&nbsp;&nbsp;&nbsp;&nbsp;entry_points={
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'console_scripts': [
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'dance = dsr_example.demo.dance_a0509:main',
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'single_robot_simple = dsr_example.simple.single_robot_simple:main',
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'slope_demo = dsr_example.demo.slope_demo:main',
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;],
+&nbsp;&nbsp;&nbsp;&nbsp;},
+)</code></pre>
+<p data-ke-size="size16">&nbsp;<br />이대로 빌드하면 DR_common2.py나 DSR_ROBOT2.py가 이상하다고 에러가 발생할 것이다. 두 파일도 import 하는 방식을 수정해주어야 한다. (import 부분만 첨부)<br />/Doosan_A0509/src/doosan-robot2/dsr_common2/imp/DR_common2.py</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code># -*- coding: utf-8 -*-
+
+# ##
+# @file&nbsp;&nbsp;&nbsp;&nbsp; DR_common2.py
+# @brief&nbsp;&nbsp;&nbsp;&nbsp;define ROS2 DRL common functions
+# @author&nbsp;&nbsp; kabdol2&lt;kabkyoum.kim@doosan.com&gt;
+# @version&nbsp;&nbsp;0.10
+# @Last update date&nbsp;&nbsp;&nbsp;&nbsp; 2021-02-15
+# @details
+#
+
+
+import collections
+import collections.abc
+import numpy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#for ROS2 add type ndarray 
+from .DR_error2 import *</code></pre>
+<p data-ke-size="size16">/Doosan_A0509/src/doosan-robot2/dsr_common2/imp/DSR_ROBOT2.py</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>#-*- coding: utf-8 -*-
+
+# ##
+# @mainpage
+# @file&nbsp;&nbsp;&nbsp;&nbsp; DSR_ROBOT2.py
+# @brief&nbsp;&nbsp;&nbsp;&nbsp;Doosan Robotics ROS2 service I/F module
+# @author&nbsp;&nbsp; kabdol2&lt;kabkyoum.kim@doosan.com&gt;&nbsp;&nbsp; 
+# @version&nbsp;&nbsp;0.10
+# @Last update date&nbsp;&nbsp;&nbsp;&nbsp; 2021-02-05
+# @details
+#
+# history
+#&nbsp;&nbsp;-&nbsp;&nbsp; 
+#
+__ROS2__ = True
+
+import rclpy
+import os
+import threading, time
+from std_msgs.msg import String,Int32,Int32MultiArray,Float32,Float64,Float32MultiArray,Float64MultiArray,MultiArrayLayout,MultiArrayDimension
+import sys
+sys.dont_write_bytecode = True
+
+#import numpy as np
+
+from .DRFC import *
+from .DR_common2 import *
+
+from dsr_msgs2.msg import *
+from dsr_msgs2.srv import *
+
+#-----------------------------------------------------------------------------------
+from . import DR_init
+g_node = None
+g_node = DR_init.__dsr__node</code></pre>
+<p data-ke-size="size16">&nbsp;<br />이후 터미널을 열어 아래 명령 실행</p>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>source /opt/ros/humble/install/setup.bash
+
+cd ~/Doosan_A0509
+colcon build
+source install/setup.bash
+
+ros2 launch dsr_bringup2 dsr_bringup2_gazebo.launch.py mode:=virtual host:=127.0.0.1 port:=12346 name:=dsr01 x:=0 y:=0</code></pre>
+<p><figure class="imageblock alignLeft" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img.png"  />
+    </span>
+    <figcaption>Gazebo</figcaption>
+</figure></p>
+<p data-ke-size="size16">터미널을 하나 더 열어 아래 명령 실행</p>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>source /opt/ros/humble/install/setup.bash
+
+cd ~/Doosan_A0509
+source install/setup.bash
+ros2 run dsr_example dance</code></pre>
+<p data-ke-size="size16">dance_a0509.py에 미리 설정된 값대로 Gazebo에서 움직이는 것을 확인할 수 있다.</p>
+<p><figure class="imageblock alignLeft" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_1.png"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<h3 data-ke-size="size23">3. [2차 목표] Unity - ROS2 통신</h3>
+<p data-ke-size="size16">Doosan Robotics의 A0509 모델을 Unity에 로드한 프로젝트가 필요하다. (유니티 프로젝트 이름은 동일하게 Doosan_A0509로 하였다.) - 유니티 프로젝트 파일은 사정상 공유할 수 없어 직접 모델을 가져와서 올려주어야 한다...</p>
+<p><figure class="imageblock alignLeft" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_2.png"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<h4 data-ke-size="size20">3-1.&nbsp; ROS2 to Unity TCP 통신 Tool 설치</h4>
+<p data-ke-size="size16">우선 생성한 유니티 프로젝트 폴더 내부에 ros2 워크스페이스를 만들어야 한다.</p>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>cd ~/Unity/project/Doosan_A0509
+mkdir -p ~/ros_ws/src
+cd ~/rosw_ws/src
+git clone -b "main-ros2" --single-branch https://github.com/Unity-Technologies/ROS-TCP-Endpoint.git
+
+source /opt/ros/humble/install/setup.bash
+source install/setup.bash
+colcon build</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<h4 data-ke-size="size20">3-2. 유니티 내부 설정</h4>
+<p data-ke-size="size16">유니티 내에서 Window -&gt; Package Manager<br />Package Manager 창의 왼쪽 위 + 클릭 -&gt; Add package from git URL<br />아래 주소 넣고 ADD</p>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>https://github.com/Unity-Technologies/ROS-TCP-Connector.git?path=/com.unity.robotics.ros-tcp-connector</code></pre>
+<p data-ke-size="size16">&nbsp;<br />재시작하면 유니티 화면 상단에 Robotics 메뉴가 추가되어 있음 (NuGet, Meta 등은 없어도 괜찮다. Robotics가 생기기만 했으면 ok)</p>
+<p><figure class="imageblock alignCenter" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_3.png"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;<br />터미널을 열고 아래 명령 실행하여 우분투 IP 주소를 확인</p>
+<pre class="shell" data-ke-type="codeblock" data-ke-language="shell"><code>hostname -I</code></pre>
+<p data-ke-size="size16">&nbsp;<br />Robotics -&gt; ROS Settings에서 Protocol을 ROS2로 변경하고 ROS IP Address를 위 명령으로 확인한 주소를 입력 (여러 개가 나왔다면 가장 처음걸로 넣으면 된다.)</p>
+<p><figure class="imageblock alignLeft" width="321" height="560" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_4.png" width="321" height="560"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;<br />다음으로 Robotics -&gt; ROS Message Browser에서 ROS message path를 /opt/ros/humble/share로 설정</p>
+<p><figure class="imageblock alignLeft" width="457" height="577" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_5.png" width="457" height="577"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<h4 data-ke-size="size20">3-3. 유니티 퍼블리시 코드 설정</h4>
+<p data-ke-size="size16">A0509 최상단 오브젝트에 아래 2개의 코드 추가<br />- 현재 로봇팔의 관절값을 구하는 코드</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>// 역할: IK 계산 및 JointStatePublisher를 통한 ROS2로의 데이터 전송 요청
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Double;
+
+public class Impedance_Control : MonoBehaviour
+{
+&nbsp;&nbsp;&nbsp;&nbsp;[Header("ROS Communication")]
+&nbsp;&nbsp;&nbsp;&nbsp;public JointStatePublisher jointPublisher; // ROS로 관절 값을 보낼 퍼블셔
+
+&nbsp;&nbsp;&nbsp;&nbsp;[Header("Target Objects")]
+&nbsp;&nbsp;&nbsp;&nbsp;public GameObject ee_Target; // 끝단(End-Effector) 타겟
+&nbsp;&nbsp;&nbsp;&nbsp;public GameObject target;&nbsp;&nbsp;&nbsp;&nbsp;// 목표 타겟 오브젝트
+&nbsp;&nbsp;&nbsp;&nbsp;public GameObject Axis_45;&nbsp;&nbsp; // 충돌 감지용 오브젝트
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;[Header("UI")]
+&nbsp;&nbsp;&nbsp;&nbsp;public Text debugText;
+
+&nbsp;&nbsp;&nbsp;&nbsp;#region Private Variables
+&nbsp;&nbsp;&nbsp;&nbsp;private GameObject[] joint = new GameObject[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private float[] angle = new float[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private float[] angle_ = new float[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3[] point = new Vector3[7];
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3[] axis = new Vector3[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private Quaternion[] rotation = new Quaternion[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private Quaternion[] wRotation = new Quaternion[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private float?[] minAngle = new float?[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private float?[] maxAngle = new float?[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private float[] minAngleVelocity = new float[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private float[] maxAngleVelocity = new float[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3[] vangle = new Vector3[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3 pos;
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3 rot;
+&nbsp;&nbsp;&nbsp;&nbsp;private float d_tolerance = 0.01f;
+&nbsp;&nbsp;&nbsp;&nbsp;private float r_tolerance = 0.5f;
+&nbsp;&nbsp;&nbsp;&nbsp;private int maxIterations = 10;
+&nbsp;&nbsp;&nbsp;&nbsp;private float[] previousAngles = new float[6];
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3 ee_target_vangle = new Vector3();
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3 target_vangle = new Vector3();
+&nbsp;&nbsp;&nbsp;&nbsp;public float sigma = 2.0f;
+&nbsp;&nbsp;&nbsp;&nbsp;public float mu = 0.0f;
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3 workspaceCenter = new Vector3(0, 0.1555f, 0);
+&nbsp;&nbsp;&nbsp;&nbsp;private float workspaceRadius = 0.95f;
+&nbsp;&nbsp;&nbsp;&nbsp;private float innerRadius = 0.35f;
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3 cubeCenter = new Vector3(0, -0.3f, 0);
+&nbsp;&nbsp;&nbsp;&nbsp;private float cubeSide = 0.315f;
+&nbsp;&nbsp;&nbsp;&nbsp;private float bufferZone = 0.22f;
+&nbsp;&nbsp;&nbsp;&nbsp;public float Kp = 50.0f;
+&nbsp;&nbsp;&nbsp;&nbsp;public float Kd = 10.0f;
+&nbsp;&nbsp;&nbsp;&nbsp;public float mass = 1.0f;
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3 eeVelocity;
+&nbsp;&nbsp;&nbsp;&nbsp;private Vector3 targetVelocity;
+&nbsp;&nbsp;&nbsp;&nbsp;#endregion
+
+&nbsp;&nbsp;&nbsp;&nbsp;void Start()
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#region Start Method Logic
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; joint.Length; i++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;joint[i] = GameObject.Find("Axis_" + i.ToString());
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle[0] = 0f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle[1] = 0f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle[2] = 90f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle[3] = 0f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle[4] = 90f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle[5] = 0f;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; angle_.Length; i++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle_[i] = 0f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngle[0] = -359f; maxAngle[0] = 359f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngle[1] = -90f;&nbsp;&nbsp;maxAngle[1] = 90f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngle[2] = -125f; maxAngle[2] = 125f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngle[3] = -359f; maxAngle[3] = 359f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngle[4] = -135f; maxAngle[4] = 135f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngle[5] = -359f; maxAngle[5] = 359f;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngleVelocity[0] = -5f; maxAngleVelocity[0] = 5f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngleVelocity[1] = -5f; maxAngleVelocity[1] = 5f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngleVelocity[2] = -5f; maxAngleVelocity[2] = 5f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngleVelocity[3] = -10f; maxAngleVelocity[3] = 10f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngleVelocity[4] = -10f; maxAngleVelocity[4] = 10f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minAngleVelocity[5] = -10f; maxAngleVelocity[5] = 10f;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vangle[0] = new Vector3(0f, -1f, 0f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vangle[1] = new Vector3(0f, 0f, -1f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vangle[2] = new Vector3(0f, 0f, -1f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vangle[3] = new Vector3(0f, -1f, 0f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vangle[4] = new Vector3(0f, 0f, -1f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vangle[5] = new Vector3(0f, -1f, 0f);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ee_target_vangle = new Vector3(0f, 1f, 0f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target_vangle = new Vector3(0f, 1f, 0f);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; joint.Length; i++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;joint[i].transform.localRotation = Quaternion.Euler(vangle[i] * angle[i]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;previousAngles[i] = angle[i];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eeVelocity = Vector3.zero;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetVelocity = Vector3.zero;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;debugText.text = "";
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#endregion
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;void Update()
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#region Update Method Logic
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (!IsWithinWorkspace(ee_Target.transform.position, bufferZone))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplyImpedanceControl(ee_Target);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (!IsWithinWorkspace(target.transform.position, bufferZone))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplyImpedanceControl(target);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (!IsWithinWorkspace(Axis_45.transform.position, 0.3f))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ApplyImpedanceControl(Axis_45);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#endregion
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SolveIK();
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;void SolveIK()
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float[] currentNewAngles = new float[joint.Length];
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int iteration = 0; iteration &lt; maxIterations; iteration++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#region IK Iteration Logic
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool reachedTarget = true;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Matrix&lt;double&gt; jacobian = CalculateJacobian();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector&lt;double&gt; positionError = CalculatePositionError();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector&lt;double&gt; rotationError = CalculateRotationError();
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double dampingFactor = CalculateAdaptiveDamping(positionError);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector&lt;double&gt; jointVelocities = DampedLeastSquares(jacobian, positionError, rotationError, dampingFactor);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = joint.Length - 1; i &gt;= 0; i--)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float angleChange = (float)jointVelocities[i];
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float maxAngleChange = maxAngleVelocity[i] * Time.deltaTime;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float minAngleChange = minAngleVelocity[i] * Time.deltaTime;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angleChange = Mathf.Clamp(angleChange, minAngleChange, maxAngleChange);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float newAngle = previousAngles[i] + angleChange;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (minAngle[i].HasValue &amp;&amp; maxAngle[i].HasValue)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;newAngle = Mathf.Clamp(newAngle, minAngle[i].Value, maxAngle[i].Value);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// ★★★ 계산된 최종 newAngle 값을 임시 배열에 저장 ★★★
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;currentNewAngles[i] = newAngle;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 기존 Socket 통신 코드가 있다면 그대로 두거나 필요에 따라 주석 처리
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// Socket_Joint.Instance.newAngles[i] = newAngle;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quaternion targetLocalRotation = Quaternion.AngleAxis(newAngle, vangle[i]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float slerpT = Mathf.Clamp01(Time.deltaTime * 2.5f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;joint[i].transform.localRotation = Quaternion.Slerp(joint[i].transform.localRotation, targetLocalRotation, slerpT);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;previousAngles[i] = newAngle;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (Vector3.Distance(ee_Target.transform.position, target.transform.position) &gt;= d_tolerance || Quaternion.Angle(ee_Target.transform.rotation, target.transform.rotation) &gt;= r_tolerance)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reachedTarget = false;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#endregion
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (reachedTarget)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//DisplayDebugInfo("Target reached.");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// return; // 타겟에 도달해도 계속 발행하기 위해 return을 주석처리
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (jointPublisher != null)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jointPublisher.UpdateJointAngles(currentNewAngles);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DisplayDebugInfo("IK solving...");
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;#region Unchanged Helper Methods
+&nbsp;&nbsp;&nbsp;&nbsp;void ApplyImpedanceControl(GameObject obj)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (obj.CompareTag("golden_baby"))
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 closestPoint = GetClosestPointOnWorkspace(obj.transform.position);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 positionError = closestPoint - obj.transform.position;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 velocityError = -GetObjectVelocity(obj);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 force = 10 * Kp * positionError + 5 * Kd * velocityError;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 acceleration = force / mass;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 velocity = GetObjectVelocity(obj) + acceleration * Time.deltaTime;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target.transform.position += velocity * Time.deltaTime;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SetObjectVelocity(obj, velocity);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DisplayDebugInfo("Applying impedance control...");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 closestPoint = GetClosestPointOnWorkspace(obj.transform.position);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 positionError = closestPoint - obj.transform.position;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 velocityError = -GetObjectVelocity(obj);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 force = Kp * positionError + Kd * velocityError;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 acceleration = force / mass;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 velocity = GetObjectVelocity(obj) + acceleration * Time.deltaTime;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obj.transform.position += velocity * Time.deltaTime;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SetObjectVelocity(obj, velocity);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DisplayDebugInfo("Applying impedance control...");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;Vector3 GetClosestPointOnWorkspace(Vector3 position)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 closestPoint = position;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float distance = Vector3.Distance(workspaceCenter, position);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (distance &gt; workspaceRadius)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closestPoint = workspaceCenter + (position - workspaceCenter).normalized * workspaceRadius;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (distance &lt; innerRadius)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closestPoint = workspaceCenter + (position - workspaceCenter).normalized * innerRadius;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 localPos = position - cubeCenter;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bool insideCube = Mathf.Abs(localPos.x) &lt; cubeSide + bufferZone &amp;&amp; Mathf.Abs(localPos.y) &lt; cubeSide + bufferZone &amp;&amp; Mathf.Abs(localPos.z) &lt; cubeSide + bufferZone;
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (insideCube)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float xDist = cubeSide + bufferZone - Mathf.Abs(localPos.x);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float yDist = cubeSide + bufferZone - Mathf.Abs(localPos.y);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float zDist = cubeSide + bufferZone - Mathf.Abs(localPos.z);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float absXDist = Mathf.Abs(xDist);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float absYDist = Mathf.Abs(yDist);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float absZDist = Mathf.Abs(zDist);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (absXDist &lt; absYDist &amp;&amp; absXDist &lt; absZDist)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closestPoint = cubeCenter + new Vector3(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.x &gt; 0 ? cubeSide + bufferZone : -cubeSide - bufferZone,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.y,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.z
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (absYDist &lt; absXDist &amp;&amp; absYDist &lt; absZDist)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closestPoint = cubeCenter + new Vector3(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.x,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.y &gt; 0 ? cubeSide + bufferZone : -cubeSide - bufferZone,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.z
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closestPoint = cubeCenter + new Vector3(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.x,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.y,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.z &gt; 0 ? cubeSide + bufferZone : -cubeSide - bufferZone
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closestPoint += new Vector3(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.x &gt; 0 ? 0.01f : -0.01f,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.y &gt; 0 ? 0.01f : -0.01f,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;localPos.z &gt; 0 ? 0.01f : -0.01f
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (position.y &lt; -0.4f)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;closestPoint.y = -0.4f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return closestPoint;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;Vector3 GetObjectVelocity(GameObject obj)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (obj == ee_Target)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return eeVelocity;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (obj == target)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return targetVelocity;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return Vector3.zero;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;void SetObjectVelocity(GameObject obj, Vector3 velocity)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (obj == ee_Target)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eeVelocity = velocity;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (obj == target)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;targetVelocity = velocity;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;Matrix&lt;double&gt; CalculateJacobian()
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Matrix&lt;double&gt; jacobian = DenseMatrix.OfArray(new double[6, 6]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt;= joint.Length - 1; i++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 jointPosition = joint[i].transform.position;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 toEndEffector = ee_Target.transform.position - jointPosition;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 axis = joint[i].transform.TransformDirection(vangle[i]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 cross = Vector3.Cross(axis, toEndEffector);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jacobian[0, i] = cross.x;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jacobian[1, i] = cross.y;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jacobian[2, i] = cross.z;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jacobian[3, i] = axis.x;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jacobian[4, i] = axis.y;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jacobian[5, i] = axis.z;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return jacobian;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;Vector&lt;double&gt; CalculatePositionError()
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 positionError = target.transform.position - ee_Target.transform.position;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return DenseVector.OfArray(new double[] { positionError.x, positionError.y, positionError.z, 0, 0, 0 });
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;Vector&lt;double&gt; CalculateRotationError()
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quaternion targetRotation = target.transform.rotation;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quaternion currentRotation = ee_Target.transform.rotation;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Quaternion rotationDiff = targetRotation * Quaternion.Inverse(currentRotation);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 rotationError = rotationDiff.eulerAngles;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rotationError.x = WrapAngle(rotationError.x);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rotationError.y = WrapAngle(rotationError.y);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rotationError.z = WrapAngle(rotationError.z);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return DenseVector.OfArray(new double[] { 0, 0, 0, rotationError.x, rotationError.y, rotationError.z });
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;Vector&lt;double&gt; DampedLeastSquares(Matrix&lt;double&gt; jacobian, Vector&lt;double&gt; positionError, Vector&lt;double&gt; rotationError, double dampingFactor)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Matrix&lt;double&gt; jacobianTranspose = jacobian.Transpose();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Matrix&lt;double&gt; identity = DenseMatrix.CreateIdentity(6);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Matrix&lt;double&gt; dampingMatrix = dampingFactor * dampingFactor * identity;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Matrix&lt;double&gt; inverseTerm = (jacobian * jacobianTranspose + dampingMatrix).Inverse();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector&lt;double&gt; combinedError = positionError + rotationError;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return jacobianTranspose * inverseTerm * combinedError;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;double CalculateAdaptiveDamping(Vector&lt;double&gt; positionError)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double errorMagnitude = positionError.SubVector(0, 3).L2Norm();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double sigma = this.sigma;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double mu = this.mu;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double dampingFactor = Mathf.Exp(-(float)(errorMagnitude - mu) * (float)(errorMagnitude - mu) / (2.0f * (float)sigma * (float)sigma));
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return dampingFactor;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;bool IsWithinWorkspace(Vector3 position, float buffer)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;float distance = Vector3.Distance(workspaceCenter, position);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (distance &gt; workspaceRadius - buffer || distance &lt; innerRadius + buffer)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return false;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 localPos = position - cubeCenter;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (Mathf.Abs(localPos.x) &lt; cubeSide + buffer &amp;&amp; Mathf.Abs(localPos.y) &lt; cubeSide + buffer &amp;&amp; Mathf.Abs(localPos.z) &lt; cubeSide + buffer)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return false;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (position.y &lt; -0.4f)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return false;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return true;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;float WrapAngle(float angle)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle = angle % 360;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (angle &gt; 180)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle -= 360;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else if (angle &lt; -180)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;angle += 360;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return angle;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;void DisplayDebugInfo(string message)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;string debugInfo = $"{message}\nJoint Angles:\n";
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; joint.Length; i++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Vector3 eulerAngles = joint[i].transform.localEulerAngles;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;debugInfo += $"Joint {i + 1} (Unity): {eulerAngles}\n";
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;debugText.text = debugInfo;
+&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;#endregion
+}</code></pre>
+<p data-ke-size="size16">&nbsp;<br />- 구한 관절값을 토픽으로 퍼블리시하는 코드</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>// 역할: 외부로부터 관절 각도 데이터를 받아 ROS2로 전송
+
+using UnityEngine;
+using Unity.Robotics.ROSTCPConnector;
+using RosMessageTypes.Sensor;
+using System.Collections.Generic;
+using System;
+
+public class JointStatePublisher : MonoBehaviour
+{
+&nbsp;&nbsp;&nbsp;&nbsp;[Tooltip("ROS 토픽 이름")]
+&nbsp;&nbsp;&nbsp;&nbsp;public string topicName = "/unity_joint_target";
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;[Tooltip("로봇 관절들의 이름 (순서 중요)")]
+&nbsp;&nbsp;&nbsp;&nbsp;public List&lt;string&gt; jointNames = new List&lt;string&gt;{"joint1", "joint2", "joint3", "joint4", "joint5", "joint6"};
+
+&nbsp;&nbsp;&nbsp;&nbsp;[Tooltip("발행 주기 (Hz, 초당 횟수)")]
+&nbsp;&nbsp;&nbsp;&nbsp;public float publishRateHz = 30f;
+
+&nbsp;&nbsp;&nbsp;&nbsp;// 내부 변수
+&nbsp;&nbsp;&nbsp;&nbsp;private ROSConnection ros;
+&nbsp;&nbsp;&nbsp;&nbsp;private JointStateMsg jointStateMsg;
+&nbsp;&nbsp;&nbsp;&nbsp;private float lastPublishTime;
+
+&nbsp;&nbsp;&nbsp;&nbsp;void Start()
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// ROS Connection 인스턴스 가져오기 및 Publisher 등록
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ros = ROSConnection.GetOrCreateInstance();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ros.RegisterPublisher&lt;JointStateMsg&gt;(topicName);
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 발행할 메시지 객체 초기화
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jointStateMsg = new JointStateMsg();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jointStateMsg.name = jointNames.ToArray();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jointStateMsg.position = new double[jointNames.Count];
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;/// &lt;summary&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// 외부 스크립트(Impedance_Control)에서 이 함수를 호출하여 관절 각도를 업데이트합니다.
+&nbsp;&nbsp;&nbsp;&nbsp;/// &lt;/summary&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;/// &lt;param name="anglesInDegrees"&gt;6개 관절의 각도 값 배열 (단위: degree)&lt;/param&gt;
+&nbsp;&nbsp;&nbsp;&nbsp;public void UpdateJointAngles(float[] anglesInDegrees)
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (anglesInDegrees.Length != jointNames.Count)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Debug.LogError($"[JointStatePublisher] 수신된 각도 배열의 길이({anglesInDegrees.Length})가 관절 수({jointNames.Count})와 일치하지 않습니다.");
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// ROS의 표준 단위인 라디안(radian)으로 변환하여 메시지에 저장
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for (int i = 0; i &lt; anglesInDegrees.Length; i++)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jointStateMsg.position[i] = anglesInDegrees[i] * Mathf.Deg2Rad;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+
+&nbsp;&nbsp;&nbsp;&nbsp;void Update()
+&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 설정된 주기(publishRateHz)에 맞춰 메시지를 발행
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (Time.time - lastPublishTime &gt; 1f / publishRateHz)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// =======================================================
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// ★★★ 오류 수정된 부분 ★★★
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// =======================================================
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 현재 시간을 초(sec)와 나노초(nanosec)로 분리하여 타임스탬프 설정
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TimeSpan timeSpan = DateTime.Now.ToUniversalTime() - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;double timeStamp = timeSpan.TotalSeconds;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jointStateMsg.header.stamp.sec = (int)timeStamp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;jointStateMsg.header.stamp.nanosec = (uint)((timeStamp - jointStateMsg.header.stamp.sec) * 1e9);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// =======================================================
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 저장된 최신 관절 값으로 ROS 토픽에 메시지 발행
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ros.Publish(topicName, jointStateMsg);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastPublishTime = Time.time;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;}
+}</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<h4 data-ke-size="size20">3-4. 서브스크라이버 코드 작성</h4>
+<p data-ke-size="size16">이전에 사용했던 Doosan_A0509의 dsr_example2 패키지의 demo 폴더에 서브스크라이브 코드를 작성할 것이다. 코드 경로는 아래와 같고 코드도 함께 제시한다.</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import rclpy
+from rclpy.node import Node
+import math
+from sensor_msgs.msg import JointState
+import time
+
+ROBOT_ID = "dsr01"
+ROBOT_MODEL = "a0509"
+
+g_node = None
+g_movej = None 
+g_get_current_posj = None
+g_latest_joint_target = None # Unity로부터 받은 최신 목표 관절 각도 임시 저장
+
+def unity_joint_callback(msg: JointState):
+&nbsp;&nbsp;&nbsp;&nbsp;"""
+&nbsp;&nbsp;&nbsp;&nbsp;Unity 메시지 수신 담당: 최신 목표를 전역 변수에 저장만 하고 즉시 종료
+&nbsp;&nbsp;&nbsp;&nbsp;"""
+&nbsp;&nbsp;&nbsp;&nbsp;global g_latest_joint_target
+&nbsp;&nbsp;&nbsp;&nbsp;g_latest_joint_target = [math.degrees(rad) for rad in msg.position]
+
+def main(args=None):
+&nbsp;&nbsp;&nbsp;&nbsp;global g_node, g_movej, g_get_current_posj, g_latest_joint_target
+
+&nbsp;&nbsp;&nbsp;&nbsp;rclpy.init(args=args)
+&nbsp;&nbsp;&nbsp;&nbsp;g_node = rclpy.create_node('dsr_unity_controller', namespace=ROBOT_ID)
+
+&nbsp;&nbsp;&nbsp;&nbsp;from dsr_common2 import DR_init
+&nbsp;&nbsp;&nbsp;&nbsp;DR_init.__dsr__id = ROBOT_ID
+&nbsp;&nbsp;&nbsp;&nbsp;DR_init.__dsr__model = ROBOT_MODEL
+&nbsp;&nbsp;&nbsp;&nbsp;DR_init.__dsr__node = g_node
+
+&nbsp;&nbsp;&nbsp;&nbsp;try:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from dsr_common2.DSR_ROBOT2 import movej, get_current_posj
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_movej = movej
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_get_current_posj = get_current_posj
+&nbsp;&nbsp;&nbsp;&nbsp;except ImportError as e:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_node.get_logger().error(f"Failure to import DSR_ROBOT2 : {e}")
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rclpy.shutdown()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return
+
+&nbsp;&nbsp;&nbsp;&nbsp;# g_node.get_logger().info("Ready to start Gazebo...")
+&nbsp;&nbsp;&nbsp;&nbsp;time.sleep(3.0)
+
+&nbsp;&nbsp;&nbsp;&nbsp;# 초기 준비 자세로 이동
+&nbsp;&nbsp;&nbsp;&nbsp;JReady = [0, 0, 90, 0, 90, 0]
+&nbsp;&nbsp;&nbsp;&nbsp;g_node.get_logger().info(f"Move to initial pose : {JReady}")
+&nbsp;&nbsp;&nbsp;&nbsp;g_movej(pos=JReady, vel=60, acc=30)
+&nbsp;&nbsp;&nbsp;&nbsp;g_node.get_logger().info("초기 준비 자세로 이동 완료.")
+
+&nbsp;&nbsp;&nbsp;&nbsp;# Subscriber 생성 (메시지가 오면 unity_joint_callback 함수를 실행)
+&nbsp;&nbsp;&nbsp;&nbsp;subscription = g_node.create_subscription(
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JointState, '/unity_joint_target', unity_joint_callback, 10)
+
+&nbsp;&nbsp;&nbsp;&nbsp;# g_node.get_logger().info("Node Start. Wait for Unity...")
+&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;try:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;while rclpy.ok():
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 들어온 메시지가 있는지 잠깐 확인
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rclpy.spin_once(g_node, timeout_sec=0.01)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# 새로운 목표가 있으면 로봇을 움직임
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if g_latest_joint_target is not None:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target_to_move = g_latest_joint_target
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_latest_joint_target = None 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_movej(pos=target_to_move, vel=100, acc=100)
+
+&nbsp;&nbsp;&nbsp;&nbsp;except KeyboardInterrupt:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_node.get_logger().info("사용자에 의해 노드가 종료됩니다. (Ctrl+C)")
+&nbsp;&nbsp;&nbsp;&nbsp;except Exception as e:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_node.get_logger().error(f"실행 중 예외 발생: {e}")
+&nbsp;&nbsp;&nbsp;&nbsp;finally:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_node.get_logger().info("안전하게 로봇을 현재 위치에 정지합니다...")
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if all((g_get_current_posj, g_movej)):
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;current_pos = g_get_current_posj()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_movej(pos=current_pos, vel=60, acc=30)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g_node.destroy_node()
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rclpy.shutdown()
+
+if __name__ == "__main__":
+&nbsp;&nbsp;&nbsp;&nbsp;main()</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<h3 data-ke-size="size23">4. 실행</h3>
+<p data-ke-size="size16">터미널을 열고 아래 명령 실행</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>source /opt/ros/humble/install/setup.bash
+
+cd ~/Doosan_A0509
+colcon build
+source install/setup.bash
+
+ros2 launch dsr_bringup2 dsr_bringup2_gazebo.launch.py mode:=virtual host:=127.0.0.1 port:=12346 name:=dsr01 x:=0 y:=0</code></pre>
+<p data-ke-size="size16">&nbsp;<br />터미널을 하나 더 열고 아래 명령 실행</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>source /opt/ros/humble/install/setup.bash
+
+cd ~/Doosan_A0509
+source install/setup.bash
+
+ros2 run dsr_example unity_control_node</code></pre>
+<p data-ke-size="size16">&nbsp;<br />터미널을 하나 더 열고 아래 명령 실행<br />&lt;IP address&gt;에는 위에서 확인한 IP 주소를 입력</p>
+<pre class="python" data-ke-type="codeblock" data-ke-language="python"><code>source /opt/ros/humble/install/setup.bash
+
+cd ~/Unity/project/Doosan_A0509/ros_ws
+source install/setup.bash
+
+ros2 run ros_tcp_endpoint default_server_endpoint --ros-args -p ROS_IP:=&lt;IP address&gt;</code></pre>
+<p data-ke-size="size16">&nbsp;<br /><a href="https://www.youtube.com/watch?v=by-qPk3nP2k" target="_blank" rel="noopener"><span>https://www.youtube.com/watch?v=by-qPk3nP2k</span></a><br />&nbsp;</p>
+<figure data-ke-type="video" data-ke-style="alignCenter" data-video-host="youtube" data-video-url="https://www.youtube.com/watch?v=by-qPk3nP2k" data-video-width="0" data-video-height="0" data-video-origin-width="0" data-video-origin-height="0" data-ke-mobilestyle="widthContent" data-video-title="Unity - Ros2 - Gazebo 통신" data-video-thumbnail="" data-original-url=""><iframe src="https://www.youtube.com/embed/by-qPk3nP2k" width="0" height="0" frameborder="0" allowfullscreen="true"></iframe>
+<figcaption style="display: none;"></figcaption>
+</figure>
+                        </div>
+                        <br/>
+                        <div class="tags">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,148 @@
+
+<meta charset="utf-8">
+<html lang="ko">
+<head>
+    <link rel="stylesheet" type="text/css" href="./../style.css" />
+    <title>Jetson Orin Nano Jetpack 설치</title>
+</head>
+<body id="tt-body-page" class="">
+<div id="wrap" class="wrap-right">
+    <div id="container">
+        <main class="main ">
+            <div class="area-main">
+                <div class="area-view">
+                    <div class="article-header">
+                        <div class="inner-article-header">
+                            <div class="box-meta">
+                                <h2 class="title-article">Jetson Orin Nano Jetpack 설치</h2>
+                                <div class="box-info">
+                                    <p class="category">Robotics/Ubuntu</p>
+                                    <p class="date">2026-02-22 20:48:56</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="article-view">
+                        <div class="contents_style">
+                            <p data-ke-size="size16">Nvidia SDK Manager에서 Ubuntu .deb 다운로드</p>
+<p data-ke-size="size16"><a href="https://developer.nvidia.com/sdk-manager">https://developer.nvidia.com/sdk-manager</a></p>
+<figure id="og_1771760147501" contenteditable="false" data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="website" data-og-title="SDK Manager" data-og-description="An end-to-end development environment setup solution for DRIVE, Jetson, and more. SDKs." data-og-host="developer.nvidia.com" data-og-source-url="https://developer.nvidia.com/sdk-manager" data-og-url="https://developer.nvidia.com/sdk-manager" data-og-image="https://scrap.kakaocdn.net/dn/yrY1f/dJMb82eJP8a/IRGeVKOpTkvkUgX27DKMy1/img.jpg?width=1200&amp;height=630&amp;face=0_0_1200_630,https://scrap.kakaocdn.net/dn/bQb8hV/dJMb82MzSjj/8x0MjwXGfoCA7S6nck9Avk/img.jpg?width=1200&amp;height=630&amp;face=0_0_1200_630"><a href="https://developer.nvidia.com/sdk-manager" target="_blank" rel="noopener" data-source-url="https://developer.nvidia.com/sdk-manager">
+<div class="og-image" style="background-image: url('https://scrap.kakaocdn.net/dn/yrY1f/dJMb82eJP8a/IRGeVKOpTkvkUgX27DKMy1/img.jpg?width=1200&amp;height=630&amp;face=0_0_1200_630,https://scrap.kakaocdn.net/dn/bQb8hV/dJMb82MzSjj/8x0MjwXGfoCA7S6nck9Avk/img.jpg?width=1200&amp;height=630&amp;face=0_0_1200_630');">&nbsp;</div>
+<div class="og-text">
+<p class="og-title" data-ke-size="size16">SDK Manager</p>
+<p class="og-desc" data-ke-size="size16">An end-to-end development environment setup solution for DRIVE, Jetson, and more. SDKs.</p>
+<p class="og-host" data-ke-size="size16">developer.nvidia.com</p>
+</div>
+</a></figure>
+<p data-ke-size="size16">&nbsp;</p>
+<pre id="code_1771760226199" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>cd ~/Downloads
+sudo apt install ./sdkmanager_2.3.0-12617_amd64.deb</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">아래와 같은 경고문구가 나올 수도 있는데 메시지 권한 문제로 나타나며, 권한이 없어서 root 권한으로 진행했다는 의미로 무시해도 됨</p>
+<pre id="code_1771760245361" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>N: Download is performed unsandboxed as root as file '/home/polygon/Downloads/sdkmanager_2.3.0-12617_amd64.deb' couldn't be accessed by user '_apt'. - pkgAcquire::Run (13: Permission denied)</code></pre>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<p data-ke-size="size16">sdk manager 실행</p>
+<pre id="code_1771760299761" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>sdkmanager</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">Target Hardware를 Jetson Orin Nano modules로 변경</p>
+<p><figure class="imageblock alignLeft" width="695" height="433" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img.png" width="695" height="433"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<p data-ke-size="size16">1. Jetson Orin Nano에 SSD 연결</p>
+<p data-ke-size="size16">2. 암암 점퍼 케이블로 FC REC와 GND 연결</p>
+<p data-ke-size="size16">3. Jetson Orin Nano와 노트북 연결</p>
+<p data-ke-size="size16">4. Jetson Orin Nano 전원 어댑터 연결</p>
+<p><figure class="imageblock alignLeft" width="647" height="530" >
+    <span data-lightbox="lightbox">
+        <img src="./img/blob.jpg" width="647" height="530"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">연결 시 아래와 같은 창이 뜨는데 developer kit 선택</p>
+<p><figure class="imageblock alignLeft" width="706" height="453" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_1.png" width="706" height="453"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">Accept하고 CONTINUE 누르면 폴더 만든다는 문구가 나오고, 진행시키면 설치가 시작됨</p>
+<p><figure class="imageblock alignLeft" width="710" height="448" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_2.png" width="710" height="448"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">Downloading 게이지가 80%쯤 찼을 때 아래와 같은 창이 열리는데 username과 password를 입력하고 Storage Device도 맞게 선택</p>
+<p><figure class="imageblock alignLeft" width="710" height="456" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_3.png" width="710" height="456"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">Installing 게이지가 20%쯤 찼을 때 아래와 같은 창이 열리는데 확인 후 Install 해주면 됨</p>
+<p><figure class="imageblock alignLeft" width="706" height="453" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_4.png" width="706" height="453"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">설치완료 후 모니터에 Jetson Orin Nano를 연결하고 로그인하며 설치 마무리</p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<p data-ke-size="size16"><a href="https://github.com/rbonghi/jetson_stats" target="_blank" rel="noopener&nbsp;noreferrer">https://github.com/rbonghi/jetson_stats</a></p>
+<figure id="og_1771760764249" contenteditable="false" data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="object" data-og-title="GitHub - rbonghi/jetson_stats: ? Simple package for monitoring and control your NVIDIA Jetson [Orin, Xavier, Nano, TX] series" data-og-description="? Simple package for monitoring and control your NVIDIA Jetson [Orin, Xavier, Nano, TX] series - rbonghi/jetson_stats" data-og-host="github.com" data-og-source-url="https://github.com/rbonghi/jetson_stats" data-og-url="https://github.com/rbonghi/jetson_stats" data-og-image="https://scrap.kakaocdn.net/dn/u9O7I/dJMb9jgtZBD/KX1dvqbPs5F2vrQnFi7Gj1/img.png?width=1263&amp;height=605&amp;face=0_0_1263_605,https://scrap.kakaocdn.net/dn/beeIjW/dJMb82MzSmO/nRCjEAbZhSCb2kpK2KKD4k/img.png?width=1263&amp;height=605&amp;face=0_0_1263_605"><a href="https://github.com/rbonghi/jetson_stats" target="_blank" rel="noopener" data-source-url="https://github.com/rbonghi/jetson_stats">
+<div class="og-image" style="background-image: url('https://scrap.kakaocdn.net/dn/u9O7I/dJMb9jgtZBD/KX1dvqbPs5F2vrQnFi7Gj1/img.png?width=1263&amp;height=605&amp;face=0_0_1263_605,https://scrap.kakaocdn.net/dn/beeIjW/dJMb82MzSmO/nRCjEAbZhSCb2kpK2KKD4k/img.png?width=1263&amp;height=605&amp;face=0_0_1263_605');">&nbsp;</div>
+<div class="og-text">
+<p class="og-title" data-ke-size="size16">GitHub - rbonghi/jetson_stats: ? Simple package for monitoring and control your NVIDIA Jetson [Orin, Xavier, Nano, TX] series</p>
+<p class="og-desc" data-ke-size="size16">? Simple package for monitoring and control your NVIDIA Jetson [Orin, Xavier, Nano, TX] series - rbonghi/jetson_stats</p>
+<p class="og-host" data-ke-size="size16">github.com</p>
+</div>
+</a></figure>
+<pre id="code_1771760794227" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>sudo apt update
+sudo apt install python3-pip -y
+sudo pip3 install -U jetson-stats
+sudo reboot</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<pre id="code_1771760807195" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>jtop</code></pre>
+<p><figure class="imageblock alignLeft" width="811" height="480" >
+    <span data-lightbox="lightbox">
+        <img src="./img/img_5.png" width="811" height="480"  />
+    </span>
+    <figcaption></figcaption>
+</figure></p>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">- 만약 CUDA와 TensorRT 등이 MISSING이라면 아래 명령 실행 (시간 조금 걸림)</p>
+<pre id="code_1771760857710" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>sudo apt update
+sudo apt install nvidia-jetpack</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">- 위 사진에서 Jetpack이 MISSING으로 표시되면 아래 명령 실행</p>
+<pre id="code_1771760888783" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>cat /etc/nv_tegra_release</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">아래와 같은 출력이 나온다면 Jetpack이 잘 설치된 것이니 걱정하지 않아도 됨</p>
+<pre id="code_1771760924506" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code># R36 (release), REVISION: 4.4, GCID: 41062509, BOARD: generic, EABI: aarch64, DATE: Mon Jun 16 16:07:13 UTC 2025
+# KERNEL_VARIANT: oot
+TARGET_USERSPACE_LIB_DIR=nvidia
+TARGET_USERSPACE_LIB_DIR_PATH=usr/lib/aarch64-linux-gnu/nvidia</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+                        </div>
+                        <br/>
+                        <div class="tags">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

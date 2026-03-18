@@ -1,0 +1,115 @@
+
+<meta charset="utf-8">
+<html lang="ko">
+<head>
+    <link rel="stylesheet" type="text/css" href="./../style.css" />
+    <title>HP OMEN Ubuntu 설치문제 해결</title>
+</head>
+<body id="tt-body-page" class="">
+<div id="wrap" class="wrap-right">
+    <div id="container">
+        <main class="main ">
+            <div class="area-main">
+                <div class="area-view">
+                    <div class="article-header">
+                        <div class="inner-article-header">
+                            <div class="box-meta">
+                                <h2 class="title-article">HP OMEN Ubuntu 설치문제 해결</h2>
+                                <div class="box-info">
+                                    <p class="category">Robotics/Ubuntu</p>
+                                    <p class="date">2025-08-16 01:15:22</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="article-view">
+                        <div class="contents_style">
+                            <p data-ke-size="size18">&nbsp;오멘16슬림 u1023tx 모델을 사용하고 있고 Ubuntu 22.04를 설치하려고 하는데 분명 부팅 USB에 이상이 없고 바이오스에서 Secure Boot도 꺼보고 다 해봐도 우분투 설치과정에서 로딩바가 멈추며 화면이 멈춰버린다...해당 문제를 완전히 해결하기까지 2주가량이 걸렸고 저처럼 OMEN 모델에 Ubuntu를 설치하다 고통받는 사람들이 없었으면 하는 마음에 이 글을 작성합니다...</p>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<p data-ke-size="size18">부팅 USB를 굽는 과정은 인터넷에 잘 알려져있기에 생략</p>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">1. 노트북 부팅시 F10을 눌러 바이오스에 진입</p>
+<p data-ke-size="size18">2. Secure Boot가 Off인지 확인</p>
+<p data-ke-size="size18">3. Boot Order에서 USB Flash Drive/USB Hard Disk를 가장 위로 드래그하여 올리기</p>
+<p data-ke-size="size18">4. F10 -&gt; Yes 를 눌러 바이오스 종료</p>
+<p data-ke-size="size18">&nbsp;</p>
+<h4 data-ke-size="size20">검정화면과 함께 try or install ubuntu가 뜰텐데 보통 노트북이면 여기서 Enter를 누르면 Ubuntu 설치가 진행되지만....HP OMEN 모델은 그렇지 않았다... Enter가 아닌 E키를 눌러 Grub창에 진입</h4>
+<p data-ke-size="size16">1. 아래쪽에 linux로 시작하는 줄이 있는데 해당 줄의 quiet flash 뒤에 noapic을 추가</p>
+<p data-ke-size="size16">2. F10을 눌러 Grub창 종료</p>
+<p data-ke-size="size16">&nbsp;</p>
+<h4 style="color: #000000; text-align: start;" data-ke-size="size20">이후 우분투 설치가 정상적으로 진행될 것이다.<span>&nbsp;</span></h4>
+<p data-ke-size="size16">해당 옵션을 계속 유지하기 위해 아래 명령으로 Grub 옵션 파일을 열고</p>
+<pre id="code_1755273744577" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>sudo gedit /etc/default/grub</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size16">아래와 같은 줄을 다음과 같이 수정</p>
+<pre id="code_1755273820798" class="bash" data-ke-language="bash" data-ke-type="codeblock"><code>GRUB_CMDLINE_LINUX_DEFAULT="quiet splash noapic"</code></pre>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<h4 data-ke-size="size20">&nbsp;설치를 하고 여러 작업을 하는데 문제는 없지만 사용하다 보면 노트북 터치패드와 스피커가 작동을 하지 않는다는 것을 깨달았다....noapic 옵션을 Grub에서 지우면 부팅 자체가 안되기에 계속 사용해야만 하는 상황이고 GPT, Gemini, 커뮤니티 등 전부 뒤져봐도 해결한 사례나 방법을 찾을 수 없었다.</h4>
+<h4 data-ke-size="size20">그러다 HP 공식 사이트에서 아래와 같은 글을 찾았다. 결론부터 말하면 아래방법으로 noapic 옵션을 사용하지 않고, 터치패드와 스피커가 정상작동하는 부팅을 할 수 있게 되었다.</h4>
+<p data-ke-size="size16"><a href="https://h30434.www3.hp.com/t5/Notebook-Hardware-and-Upgrade-Questions/Solved-installing-Linux-on-HP-Omen-Laptops/td-p/9025622" target="_blank" rel="noopener&nbsp;noreferrer">https://h30434.www3.hp.com/t5/Notebook-Hardware-and-Upgrade-Questions/Solved-installing-Linux-on-HP-Omen-Laptops/td-p/9025622</a></p>
+<figure id="og_1755273948630" contenteditable="false" data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="article" data-og-title="Solved: installing Linux on HP Omen Laptops" data-og-description="Hi! This is not a question, but rather a hint how to install Linux (namely Ubuntu) on HP Omen Laptops, because I've seen on this forum that many people have problems with that. I had too, and was about to give up, when I finally stumbled upon this: https:/" data-og-host="h30434.www3.hp.com" data-og-source-url="https://h30434.www3.hp.com/t5/Notebook-Hardware-and-Upgrade-Questions/Solved-installing-Linux-on-HP-Omen-Laptops/td-p/9025622" data-og-url="https://h30434.www3.hp.com/t5/Notebook-Hardware-and-Upgrade-Questions/Solved-installing-Linux-on-HP-Omen-Laptops/td-p/9025622" data-og-image="https://scrap.kakaocdn.net/dn/bkDXUH/hyZygaHPYz/pjU72L79zyEzqPkeyaU5ek/img.png?width=1200&amp;height=630&amp;face=0_0_1200_630,https://scrap.kakaocdn.net/dn/psoJK/hyZyliMUue/kXCkfpqT9UV9aKcCobc2y1/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600,https://scrap.kakaocdn.net/dn/eznds/hyZzEPLqeI/XvgOctp6AjPzr0tXvibBc0/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600"><a href="https://h30434.www3.hp.com/t5/Notebook-Hardware-and-Upgrade-Questions/Solved-installing-Linux-on-HP-Omen-Laptops/td-p/9025622" target="_blank" rel="noopener" data-source-url="https://h30434.www3.hp.com/t5/Notebook-Hardware-and-Upgrade-Questions/Solved-installing-Linux-on-HP-Omen-Laptops/td-p/9025622">
+<div class="og-image" style="background-image: url('https://scrap.kakaocdn.net/dn/bkDXUH/hyZygaHPYz/pjU72L79zyEzqPkeyaU5ek/img.png?width=1200&amp;height=630&amp;face=0_0_1200_630,https://scrap.kakaocdn.net/dn/psoJK/hyZyliMUue/kXCkfpqT9UV9aKcCobc2y1/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600,https://scrap.kakaocdn.net/dn/eznds/hyZzEPLqeI/XvgOctp6AjPzr0tXvibBc0/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600');">&nbsp;</div>
+<div class="og-text">
+<p class="og-title" data-ke-size="size16">Solved: installing Linux on HP Omen Laptops</p>
+<p class="og-desc" data-ke-size="size16">Hi! This is not a question, but rather a hint how to install Linux (namely Ubuntu) on HP Omen Laptops, because I've seen on this forum that many people have problems with that. I had too, and was about to give up, when I finally stumbled upon this: https:/</p>
+<p class="og-host" data-ke-size="size16">h30434.www3.hp.com</p>
+</div>
+</a></figure>
+<p data-ke-size="size16">&nbsp;</p>
+<h3 data-ke-size="size23">1. 우선 dsdt 파일을 다루기 위한 컴파일러와 디컴파일러를 설치</h3>
+<pre id="code_1755274026333" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>sudo apt update
+sudo apt install acpica-tools</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<h3 data-ke-size="size23">2. dsdt 파일을 추출하고 디컴파일 (추출한 바이너리 파일을 수정 가능한 텍스트 파일(*.dsl)로 변환하는 과정)</h3>
+<pre id="code_1755274085925" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>cat /sys/firmware/acpi/tables/DSDT &gt; dsdt.dat
+iasl -d dsdt.dat</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<h3 data-ke-size="size23">3. dsdt 파일 수정</h3>
+<pre id="code_1755274107482" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>gedit dsdt.dsl</code></pre>
+<h4 data-ke-size="size20">아래 깃허브 커밋 자료에서 수정한 것처럼 두 부분 수정 (노트북마다 파일 내용이 다르기 때문에 줄 번호가 아닌 Ctrl+F로 찾아가면서 정확하게 수정해야함.)</h4>
+<p data-ke-size="size16"><a href="https://github.com/j0hnwang/OMEN-Transcend-16-ACPI-fix/commit/2e4feda9529c09133f5f7e9623ec11226db581a5" target="_blank" rel="noopener&nbsp;noreferrer">https://github.com/j0hnwang/OMEN-Transcend-16-ACPI-fix/commit/2e4feda9529c09133f5f7e9623ec11226db581a5</a></p>
+<figure id="og_1755274119737" contenteditable="false" data-ke-type="opengraph" data-ke-align="alignCenter" data-og-type="object" data-og-title="fix dsdt config error in F.11 Rev.A &middot; j0hnwang/OMEN-Transcend-16-ACPI-fix@2e4feda" data-og-description="@@ -107199,7 +107187,7 @@ DefinitionBlock (&quot;&quot;, &quot;DSDT&quot;, 2, &quot;HPQOEM&quot;, &quot;8BB3 &quot;, 0x00000002)" data-og-host="github.com" data-og-source-url="https://github.com/j0hnwang/OMEN-Transcend-16-ACPI-fix/commit/2e4feda9529c09133f5f7e9623ec11226db581a5" data-og-url="https://github.com/j0hnwang/OMEN-Transcend-16-ACPI-fix/commit/2e4feda9529c09133f5f7e9623ec11226db581a5" data-og-image="https://scrap.kakaocdn.net/dn/bZvwOx/hyZyeDZsbl/Mckbsvx1xx94ceVHcuWACK/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600,https://scrap.kakaocdn.net/dn/bEjC1T/hyZykxoxya/6shFQl7KCiRvNDGYrTIKvk/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600"><a href="https://github.com/j0hnwang/OMEN-Transcend-16-ACPI-fix/commit/2e4feda9529c09133f5f7e9623ec11226db581a5" target="_blank" rel="noopener" data-source-url="https://github.com/j0hnwang/OMEN-Transcend-16-ACPI-fix/commit/2e4feda9529c09133f5f7e9623ec11226db581a5">
+<div class="og-image" style="background-image: url('https://scrap.kakaocdn.net/dn/bZvwOx/hyZyeDZsbl/Mckbsvx1xx94ceVHcuWACK/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600,https://scrap.kakaocdn.net/dn/bEjC1T/hyZykxoxya/6shFQl7KCiRvNDGYrTIKvk/img.png?width=1200&amp;height=600&amp;face=0_0_1200_600');">&nbsp;</div>
+<div class="og-text">
+<p class="og-title" data-ke-size="size16">fix dsdt config error in F.11 Rev.A &middot; j0hnwang/OMEN-Transcend-16-ACPI-fix@2e4feda</p>
+<p class="og-desc" data-ke-size="size16">@@ -107199,7 +107187,7 @@ DefinitionBlock ("", "DSDT", 2, "HPQOEM", "8BB3 ", 0x00000002)</p>
+<p class="og-host" data-ke-size="size16">github.com</p>
+</div>
+</a></figure>
+<h3 data-ke-size="size23">4. 수정한 dsdt 적용</h3>
+<pre id="code_1755274226486" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>iasl -tc dsdt.dsl
+sudo cp dsdt.aml /boot/</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<h3 data-ke-size="size23">5. grub 설정 수정</h3>
+<pre id="code_1755274241809" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>sudo nano /etc/grub.d/10_linux</code></pre>
+<p data-ke-size="size18">&nbsp;</p>
+<p data-ke-size="size18">Ctrl+W로 검색창을 열고 insmod gzio 를 붙여넣고 검색하면 아래와 같은 부분이 있을 것이다.</p>
+<pre id="code_1755274268626" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>echo "	insmod gzio" | sed "s/^/$submenu_indentation/"
+echo "	if [ x\$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi" | sed "s/^/$submenu_indentation/"</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size18">아래처럼 수정</p>
+<pre id="code_1755275847107" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>echo "	insmod gzio" | sed "s/^/$submenu_indentation/"
+echo "	if [ x\$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi" | sed "s/^/$submenu_indentation/"
+echo "	acpi /boot/dsdt.aml" | sed "s/^/$submenu_indentation/"</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<p data-ke-size="size18">grub 설정 업데이트</p>
+<pre id="code_1755274303992" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>sudo update-grub</code></pre>
+<p data-ke-size="size16">&nbsp;</p>
+<h3 data-ke-size="size23">6. 재부팅</h3>
+<pre id="code_1755274321445" class="shell" data-ke-language="shell" data-ke-type="codeblock"><code>reboot</code></pre>
+<hr contenteditable="false" data-ke-type="horizontalRule" data-ke-style="style5" />
+<h2 data-ke-size="size26">재부팅 이후에는 노트북 터치패드와 스피커 모두 잘 동작할 것이다!</h2>
+                        </div>
+                        <br/>
+                        <div class="tags">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>
