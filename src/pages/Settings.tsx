@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 import './Settings.css';
 
-interface SettingsProps {
-  isDark: boolean;
-  setIsDark: (val: boolean) => void;
-}
-
-const Settings: React.FC<SettingsProps> = ({ isDark, setIsDark }) => {
+const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState('general');
 
   return (
@@ -30,13 +25,8 @@ const Settings: React.FC<SettingsProps> = ({ isDark, setIsDark }) => {
                 <h2 className="vscode-group-title">General</h2>
                 
                 <div className="vscode-setting-item">
-                  <div className="vscode-setting-info" style={{ marginBottom: '12px' }}>
-                    <div className="vscode-setting-name">Theme: <span>Dark Mode</span></div>
-                  </div>
-                  <div className="vscode-setting-control">
-                    <div className={`mini-theme-toggle ${isDark ? 'dark' : 'light'}`} onClick={() => setIsDark(!isDark)}>
-                      <div className="mini-toggle-thumb">{isDark ? '🌙' : '☀️'}</div>
-                    </div>
+                  <div className="vscode-setting-info">
+                    <div className="vscode-setting-name">Settings are now accessible from the header.</div>
                   </div>
                 </div>
 

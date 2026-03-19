@@ -44,7 +44,13 @@ const App: React.FC = () => {
               <NavLink to="/" end>Profile</NavLink>
               <NavLink to="/project">Project</NavLink>
               <NavLink to="/study">Study</NavLink>
-              <NavLink to="/settings">Settings</NavLink>
+              <button 
+                className="theme-toggle-btn" 
+                onClick={() => setIsDark(!isDark)}
+                aria-label="Toggle theme"
+              >
+                {isDark ? '☀️' : '🌙'}
+              </button>
             </div>
           </div>
         </nav>
@@ -59,7 +65,7 @@ const App: React.FC = () => {
             <Route path="/project/autonomous-driving" element={<ProjectAutonomous />} />
             <Route path="/study" element={<StudyList />} />
             <Route path="/study/:id" element={<PostView />} />
-            <Route path="/settings" element={<Settings isDark={isDark} setIsDark={setIsDark} />} />
+            <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
         
