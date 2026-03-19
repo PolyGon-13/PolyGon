@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import Portfolio from './pages/Portfolio';
+import Project from './pages/Project';
 import StudyList from './pages/StudyList';
 import PostView from './pages/PostView';
 import Settings from './pages/Settings';
@@ -37,6 +38,7 @@ const App: React.FC = () => {
             <div className="nav-brand"><Link to="/">PolyGon</Link></div>
             <div className="nav-links">
               <Link to="/">Profile</Link>
+              <Link to="/project">Project</Link>
               <Link to="/study">Study</Link>
               <Link to="/settings">Settings</Link>
             </div>
@@ -46,6 +48,7 @@ const App: React.FC = () => {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Portfolio />} />
+            <Route path="/project" element={<Project />} />
             <Route path="/study" element={<StudyList />} />
             <Route path="/study/:id" element={<PostView />} />
             <Route path="/settings" element={<Settings isDark={isDark} setIsDark={setIsDark} />} />
