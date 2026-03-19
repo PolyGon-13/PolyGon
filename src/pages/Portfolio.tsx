@@ -40,7 +40,11 @@ const Portfolio: React.FC = () => {
         </div>
         <div className="profile-info">
           <div className="profile-photo">
-            <div className="photo-placeholder">DK</div>
+            <img 
+              src={import.meta.env.BASE_URL + 'profile.jpg'} 
+              alt="Profile" 
+              className="profile-img"
+            />
           </div>
           <div className="profile-details">
             <h1 className="profile-name">Donghyun Kim</h1>
