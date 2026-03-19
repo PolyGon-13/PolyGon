@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import Portfolio from './pages/Portfolio';
 import Project from './pages/Project';
 import StudyList from './pages/StudyList';
@@ -37,10 +37,10 @@ const App: React.FC = () => {
           <div className="nav-container">
             <div className="nav-brand"><Link to="/">PolyGon</Link></div>
             <div className="nav-links">
-              <Link to="/">Profile</Link>
-              <Link to="/project">Project</Link>
-              <Link to="/study">Study</Link>
-              <Link to="/settings">Settings</Link>
+              <NavLink to="/" end>Profile</NavLink>
+              <NavLink to="/project">Project</NavLink>
+              <NavLink to="/study">Study</NavLink>
+              <NavLink to="/settings">Settings</NavLink>
             </div>
           </div>
         </nav>
