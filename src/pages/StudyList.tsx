@@ -69,8 +69,14 @@ const StudyList: React.FC = () => {
     );
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+    const studyMain = document.querySelector('.study-main');
+    if (studyMain) {
+      studyMain.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -123,7 +129,7 @@ const StudyList: React.FC = () => {
           </ul>
         </div>
 
-        <div className="study-main card">
+        <div className="study-main card study-main">
           <div className="study-header">
             <h2 className="section-title">Study Content</h2>
             <div className="search-bar">
@@ -164,7 +170,7 @@ const StudyList: React.FC = () => {
           </div>
           
           {totalPages > 1 && (
-            <div className="pagination-container">
+            <div className="pagination">
               <button 
                 className="pagination-btn arrow-btn" 
                 onClick={() => handlePageChange(1)}
