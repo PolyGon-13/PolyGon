@@ -400,18 +400,38 @@
 /* 모바일에서 버튼 크기 줄이기 */
 @media (max-width: 480px) {
   .pagination {
-    gap: 4px;
-    padding: 24px 0 12px 0;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 0;
   }
+
   .pagination-numbers {
-    gap: 4px;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 2px;
   }
+
   .pagination-btn {
-    min-width: 28px;
-    height: 28px;
+    min-width: 30px;
+    width: 30px;
+    height: 30px;
     font-size: 12px;
-    padding: 0 4px;
-    border-radius: 4px;
+    padding: 0;
+    flex-shrink: 0;
+    box-sizing: border-box;
+  }
+
+  .arrow-btn {
+    min-width: 26px;
+    width: 26px;
+    height: 30px;
+    font-size: 11px;
   }
 }
 
