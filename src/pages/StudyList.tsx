@@ -69,6 +69,10 @@ const StudyList: React.FC = () => {
     );
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="container study-container">
       <div className="study-layout">
@@ -163,7 +167,7 @@ const StudyList: React.FC = () => {
             <div className="pagination-container">
               <button 
                 className="pagination-btn arrow-btn" 
-                onClick={() => setCurrentPage(1)}
+                onClick={() => handlePageChange(1)}
                 disabled={currentPage === 1}
                 title="First Page"
               >
@@ -171,7 +175,7 @@ const StudyList: React.FC = () => {
               </button>
               <button 
                 className="pagination-btn arrow-btn" 
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
                 title="Previous Page"
               >
@@ -183,7 +187,7 @@ const StudyList: React.FC = () => {
                   <button 
                     key={page}
                     className={`pagination-btn number-btn ${currentPage === page ? 'active' : ''}`}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                   >
                     {page}
                   </button>
@@ -192,7 +196,7 @@ const StudyList: React.FC = () => {
 
               <button 
                 className="pagination-btn arrow-btn" 
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 title="Next Page"
               >
@@ -200,7 +204,7 @@ const StudyList: React.FC = () => {
               </button>
               <button 
                 className="pagination-btn arrow-btn" 
-                onClick={() => setCurrentPage(totalPages)}
+                onClick={() => handlePageChange(totalPages)}
                 disabled={currentPage === totalPages}
                 title="Last Page"
               >
