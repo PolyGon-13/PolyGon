@@ -15,8 +15,37 @@
 }
 
 @media (max-width: 768px) {
+  .study-container {
+    padding: 0;
+    overflow-x: hidden;
+  }
+
   .study-layout {
-    grid-template-columns: 1fr;
+    display: flex; /* Ensure flex for flex-direction to work */
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    gap: 12px;
+    padding: 0 12px;
+    box-sizing: border-box;
+  }
+
+  .study-sidebar {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .study-main {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .search-bar input {
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 

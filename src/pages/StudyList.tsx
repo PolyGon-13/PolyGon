@@ -71,12 +71,6 @@ const StudyList: React.FC = () => {
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
-    const studyMain = document.querySelector('.study-main');
-    if (studyMain) {
-      studyMain.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
   };
 
   return (
