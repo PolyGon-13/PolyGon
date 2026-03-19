@@ -1,14 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Portfolio.css';
 
 const Portfolio: React.FC = () => {
   const [isLecturesExpanded, setIsLecturesExpanded] = useState(false);
   const [isResearchExpanded, setIsResearchExpanded] = useState(false);
 
+  useEffect(() => {
+    const hideSplineLogo = () => {
+      const viewers = document.querySelectorAll('spline-viewer');
+      viewers.forEach(viewer => {
+        if (viewer && viewer.shadowRoot) {
+          const shadow = viewer.shadowRoot as ShadowRoot;
+          // 1. Hide by ID (common)
+          const logo = shadow.querySelector('#logo') || shadow.querySelector('#spline-logo');
+          if (logo) (logo as HTMLElement).style.display = 'none';
+          
+          // 2. Hide all links pointing to Spline (the badge is usually a link)
+          shadow.querySelectorAll('a').forEach(anchor => {
+            if (anchor.href.includes('spline.design')) {
+              anchor.style.display = 'none';
+            }
+          });
+
+          // 3. Hide any absolute positioned divs in the bottom right corner (another common pattern)
+          shadow.querySelectorAll('div').forEach(div => {
+            const style = window.getComputedStyle(div);
+            if (style.position === 'absolute' && (style.bottom === '0px' || style.bottom === '10px') && style.right === '0px') {
+              div.style.display = 'none';
+            }
+          });
+        }
+      });
+    };
+
+    // Try very frequently initially, then slow down
+    const interval = setInterval(hideSplineLogo, 50);
+    const timeout = setTimeout(() => clearInterval(interval), 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []);
+
   return (
     <div className="container">
       <div className="profile-header card">
-        <div className="profile-banner"></div>
+        <div className="profile-banner">
+          <spline-viewer url="https://prod.spline.design/onhZr5JdpKtdWDkW/scene.splinecode"></spline-viewer>
+        </div>
         <div className="profile-info">
           <div className="profile-photo">
             <div className="photo-placeholder">DK</div>
