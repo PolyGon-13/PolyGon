@@ -69,3 +69,51 @@ body.dark-theme .social-github:hover { border-color: #ffffff; background-color: 
 
 .project-link { color: var(--text-primary); text-decoration: none; font-weight: 700; transition: color 0.2s ease; }
 .project-link:hover { color: var(--primary-color); }
+
+/* Experience Accordion */
+.exp-accordion {
+  margin-top: 12px;
+}
+
+.exp-accordion-btn {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  margin-left: -10px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.exp-accordion-btn:hover {
+  background-color: rgba(79, 70, 229, 0.08);
+}
+
+body.dark-theme .exp-accordion-btn:hover {
+  background-color: rgba(129, 140, 248, 0.15);
+}
+
+.exp-accordion-btn .expand-icon {
+  font-size: 0.75rem;
+}
+
+.exp-accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-in-out;
+  overflow: hidden;
+}
+
+.exp-accordion-content.expanded {
+  grid-template-rows: 1fr;
+}
+
+.exp-accordion-inner {
+  min-height: 0;
+}

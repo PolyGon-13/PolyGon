@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Portfolio.css';
 
 const Portfolio: React.FC = () => {
+  const [isLecturesExpanded, setIsLecturesExpanded] = useState(false);
+  const [isResearchExpanded, setIsResearchExpanded] = useState(false);
+
   return (
     <div className="container">
       <div className="profile-header card">
@@ -54,17 +57,50 @@ const Portfolio: React.FC = () => {
               <h4>Instructor</h4>
               <p className="experience-subtitle">DORO.Co.Ltd &middot; Freelance</p>
               <p className="experience-date">2025.11 - Present</p>
+
+              <div className="exp-accordion">
+                <button 
+                  className="exp-accordion-btn" 
+                  onClick={() => setIsLecturesExpanded(!isLecturesExpanded)}
+                >
+                  <span className="expand-icon">{isLecturesExpanded ? '▼' : '▶'}</span>
+                  <span className="exp-accordion-title">Lectures</span>
+                </button>
+                <div className={`exp-accordion-content ${isLecturesExpanded ? 'expanded' : ''}`}>
+                  <div className="exp-accordion-inner">
+                    <ul className="experience-desc-list">
+                      <li>88로봇위크 강사 - AI NOVA(모바일 로봇), XArm(로봇팔) 체험 (25.11.01)</li>
+                      <li>단청수 안단테 부스 - XArm(로봇팔)을 이용한 부루마블 (25.11.08)</li>
+                      <li>도로랜드 CH1,2 - 모바일 로봇, 마블머신 (26.01.30~26.02.01)</li>
+                      <li>도로랜드 CH1 - 모바일 로봇 (26.02.02~26.02.03)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
             <hr className="divider" />
             <div className="experience-item">
               <h4>Robotics Researcher (Freelance)</h4>
               <p className="experience-subtitle">Korea Atomic Energy Research Institute (KAERI)</p>
               <p className="experience-date">2025.08 - 2025.10 &middot; Daejeon, South Korea</p>
-              <ul className="experience-desc-list">
-                <li>Integrated Doosan A0509 and Agilex PiPER using Hand Tracking and Go2 systems.</li>
-                <li>Ported a Virtual Hot Cell facility to Unity VR with object interactions.</li>
-                <li>Implemented Digital Twin infrastructure integrating LS PLC systems.</li>
-              </ul>
+              <div className="exp-accordion">
+                <button 
+                  className="exp-accordion-btn" 
+                  onClick={() => setIsResearchExpanded(!isResearchExpanded)}
+                >
+                  <span className="expand-icon">{isResearchExpanded ? '▼' : '▶'}</span>
+                  <span className="exp-accordion-title">Research</span>
+                </button>
+                <div className={`exp-accordion-content ${isResearchExpanded ? 'expanded' : ''}`}>
+                  <div className="exp-accordion-inner">
+                    <ul className="experience-desc-list">
+                      <li>Integrated Doosan A0509 and Agilex PiPER using Hand Tracking and Go2 systems.</li>
+                      <li>Ported a Virtual Hot Cell facility to Unity VR with object interactions.</li>
+                      <li>Implemented Digital Twin infrastructure integrating LS PLC systems.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -110,23 +146,16 @@ const Portfolio: React.FC = () => {
           {/* 7. Licenses & Certifications */}
           <div className="certification-section card">
             <h3>Licenses & Certifications</h3>
-            <div className="experience-item compact">
-              <h4>리눅스마스터 2급</h4>
-              <p className="experience-org">한국정보통신진흥협회</p>
-              <p className="experience-date">발행: 2026.03</p>
-            </div>
-            <div className="experience-item compact">
-              <h4>컴퓨터활용능력 1급</h4>
-              <p className="experience-org">대한상공회의소</p>
-              <p className="experience-meta">식별번호: 25-K9-016143</p>
-              <p className="experience-date">발행: 2025.03</p>
-            </div>
-            <div className="experience-item compact">
-              <h4>한국사능력검정시험 1급</h4>
-              <p className="experience-org">국사편찬위원회</p>
-              <p className="experience-meta">식별번호: 72-111165</p>
-              <p className="experience-date">발행: 2024.10</p>
-            </div>
+            <ul className="bullet-list">
+              <li><strong>리눅스마스터 2급</strong> &middot; 한국정보통신진흥협회 (2026.03)</li>
+              <li><strong>지게차운전기능사</strong> &middot; 국토교통부 &middot; 25631503095C (2025.06)</li>
+              <li><strong>컴퓨터활용능력 1급</strong> &middot; 대한상공회의소 &middot; 25-K9-016143 (2025.03)</li>
+              <li><strong>워드프로세서</strong> &middot; 대한상공회의소 &middot; 24-I9-010370 (2024.11)</li>
+              <li><strong>한국사능력검정시험 1급</strong> &middot; 국사편찬위원회 &middot; 72-111165 (2024.10)</li>
+              <li><strong>상공회의소 한자 3급</strong> &middot; 대한상공회의소 &middot; 24-V9-004171 (2024.09)</li>
+              <li><strong>ITQ OA Master</strong> &middot; 한국생산성본부 &middot; A001-2015109-003592 (2023.06)</li>
+              <li><strong>태권도 3단</strong> &middot; 국기원 &middot; 21115931 (2016.06)</li>
+            </ul>
           </div>
           
           {/* 8. Volunteering */}

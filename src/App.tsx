@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import Portfolio from './pages/Portfolio';
 import Project from './pages/Project';
+import ProjectSmartRescue from './pages/ProjectSmartRescue';
+import ProjectAgilex from './pages/ProjectAgilex';
+import ProjectHotCell from './pages/ProjectHotCell';
+import ProjectAutonomous from './pages/ProjectAutonomous';
 import StudyList from './pages/StudyList';
 import PostView from './pages/PostView';
 import Settings from './pages/Settings';
@@ -49,6 +53,10 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Portfolio />} />
             <Route path="/project" element={<Project />} />
+            <Route path="/project/smart-rescue-mat" element={<ProjectSmartRescue />} />
+            <Route path="/project/agilex-piper" element={<ProjectAgilex />} />
+            <Route path="/project/virtual-hot-cell" element={<ProjectHotCell />} />
+            <Route path="/project/autonomous-driving" element={<ProjectAutonomous />} />
             <Route path="/study" element={<StudyList />} />
             <Route path="/study/:id" element={<PostView />} />
             <Route path="/settings" element={<Settings isDark={isDark} setIsDark={setIsDark} />} />
