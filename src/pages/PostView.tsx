@@ -62,7 +62,7 @@ const PostView: React.FC = () => {
         {/* Injecting original Tistory HTML safely */}
         <div 
           className="post-content contents_style"
-          dangerouslySetInnerHTML={{ __html: post.content }} 
+          dangerouslySetInnerHTML={{ __html: post.content.replaceAll('="/blog_data/', `="${import.meta.env.BASE_URL}blog_data/`) }} 
         />
       </div>
     </div>

@@ -145,7 +145,7 @@ const StudyList: React.FC = () => {
                   </div>
                   {post.thumbnail && (
                     <div className="post-thumbnail">
-                      <img src={post.thumbnail} alt={post.title} />
+                      <img src={post.thumbnail.startsWith('/') ? import.meta.env.BASE_URL + post.thumbnail.slice(1) : post.thumbnail} alt={post.title} />
                     </div>
                   )}
                 </div>
