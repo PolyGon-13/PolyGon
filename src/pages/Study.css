@@ -404,34 +404,26 @@
     flex-wrap: nowrap;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 4px;
     width: 100%;
     overflow: hidden;
     box-sizing: border-box;
-    padding: 0;
   }
 
   .pagination-numbers {
     display: flex;
     flex-wrap: nowrap;
-    gap: 2px;
+    gap: 4px;
   }
 
   .pagination-btn {
-    min-width: 30px;
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
     padding: 0;
     flex-shrink: 0;
     box-sizing: border-box;
-  }
-
-  .arrow-btn {
-    min-width: 26px;
-    width: 26px;
-    height: 30px;
-    font-size: 11px;
   }
 }
 

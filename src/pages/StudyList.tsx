@@ -183,7 +183,7 @@ const StudyList: React.FC = () => {
               </button>
               
               <div className="pagination-numbers">
-                {Array.from({ length: Math.min(8, totalPages - (Math.floor((currentPage - 1) / 8) * 8)) }, (_, i) => (Math.floor((currentPage - 1) / 8) * 8) + i + 1).map(page => (
+                {Array.from({ length: Math.min(5, totalPages - (Math.floor((currentPage - 1) / 5) * 5)) }, (_, i) => (Math.floor((currentPage - 1) / 5) * 5) + i + 1).map(page => (
                   <button 
                     key={page}
                     className={`pagination-btn number-btn ${currentPage === page ? 'active' : ''}`}
