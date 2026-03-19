@@ -11,12 +11,12 @@ const StudyList: React.FC = () => {
   const [expandedCats, setExpandedCats] = useState<string[]>([]);
   
   // Pagination State
-  const [showAll, setShowAll] = useState(false);
-  const INITIAL_LIMIT = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   // Reset pagination when filters change
   useEffect(() => {
-    setShowAll(false);
+    setCurrentPage(1);
   }, [searchQuery, selectedCategory]);
 
   // Extract hierarchical categories
@@ -56,7 +56,11 @@ const StudyList: React.FC = () => {
     });
   }, [searchQuery, selectedCategory]);
 
-  const displayedPosts = showAll ? filteredPosts : filteredPosts.slice(0, INITIAL_LIMIT);
+  const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE);
+  const displayedPosts = filteredPosts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleParentClick = (parent: string) => {
     setSelectedCategory(parent);
@@ -155,10 +159,52 @@ const StudyList: React.FC = () => {
             )}
           </div>
           
-          {!showAll && filteredPosts.length > INITIAL_LIMIT && (
-            <div className="load-more-container">
-              <button className="btn btn-outline load-more-btn" onClick={() => setShowAll(true)}>
-                더보기 ({filteredPosts.length - INITIAL_LIMIT}개 더 있음)
+          {totalPages > 1 && (
+            <div className="pagination-container">
+              <button 
+                className="pagination-btn arrow-btn" 
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                title="First Page"
+              >
+                &laquo;
+              </button>
+              <button 
+                className="pagination-btn arrow-btn" 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                title="Previous Page"
+              >
+                &lt;
+              </button>
+              
+              <div className="pagination-numbers">
+                {Array.from({ length: Math.min(8, totalPages - (Math.floor((currentPage - 1) / 8) * 8)) }, (_, i) => (Math.floor((currentPage - 1) / 8) * 8) + i + 1).map(page => (
+                  <button 
+                    key={page}
+                    className={`pagination-btn number-btn ${currentPage === page ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                className="pagination-btn arrow-btn" 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                title="Next Page"
+              >
+                &gt;
+              </button>
+              <button 
+                className="pagination-btn arrow-btn" 
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                title="Last Page"
+              >
+                &raquo;
               </button>
             </div>
           )}

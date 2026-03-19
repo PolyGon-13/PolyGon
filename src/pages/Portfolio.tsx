@@ -9,6 +9,18 @@ const Portfolio: React.FC = () => {
     <div className="container">
       <div className="profile-header card">
         <div className="profile-banner">
+          <img 
+            src="https://ghchart.rshah.org/4f46e5/PolyGon-13" 
+            alt="GitHub Contribution Chart" 
+            className="banner-img"
+            onError={(e) => (e.currentTarget.style.display = 'none')}
+          />
+          <img 
+            src="https://streak-stats.demolab.com?user=PolyGon-13&theme=transparent&hide_border=true&stroke=4f46e5&ring=4f46e5&fire=4f46e5&currStreakLabel=4f46e5" 
+            alt="GitHub Streak Stats" 
+            className="banner-img"
+            onError={(e) => (e.currentTarget.style.display = 'none')}
+          />
         </div>
         <div className="profile-info">
           <div className="profile-photo">
