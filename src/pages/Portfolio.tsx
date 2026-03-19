@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { GitHubCalendar } from 'react-github-calendar';
-import 'react-github-calendar/tooltips.css';
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css';
 import './Portfolio.css';
 
 const Portfolio: React.FC = () => {
@@ -13,10 +14,14 @@ const Portfolio: React.FC = () => {
         <div className="profile-banner">
           <GitHubCalendar 
             username="PolyGon-13" 
-            labels={{
-              totalCount: '{{count}} contributions in the last year',
-            }}
+            renderBlock={(block, activity) =>
+              React.cloneElement(block, {
+                'data-tooltip-id': 'github-tooltip',
+                'data-tooltip-content': `${activity.date}: ${activity.count} contribution${activity.count !== 1 ? 's' : ''}`,
+              } as any)
+            }
           />
+          <Tooltip id="github-tooltip" />
         </div>
         <div className="profile-info">
           <div className="profile-photo">
