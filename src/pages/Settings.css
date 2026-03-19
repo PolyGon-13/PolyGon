@@ -96,6 +96,36 @@ body.dark-theme .vscode-settings-search input:focus {
   letter-spacing: -0.3px;
 }
 
+@media (max-width: 768px) {
+  .vscode-settings-layout {
+    flex-direction: column;
+  }
+  .vscode-sidebar {
+    width: 100%;
+    min-width: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    padding: 0;
+  }
+  .vscode-tabs {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .vscode-tabs li {
+    padding: 12px 16px;
+    border-bottom: 2px solid transparent;
+  }
+  .vscode-tabs li.active {
+    border-bottom-color: var(--primary-color);
+    background-color: transparent;
+  }
+  .vscode-main {
+    padding: 24px 16px;
+  }
+}
+
 .vscode-setting-item {
   margin-bottom: 32px;
   display: flex;

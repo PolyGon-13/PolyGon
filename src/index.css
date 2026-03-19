@@ -113,6 +113,27 @@ a {
   transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+@media (max-width: 600px) {
+  .nav-container {
+    flex-direction: column;
+    padding: 10px 16px;
+  }
+  .main-nav {
+    height: auto;
+  }
+  .nav-links {
+    width: 100%;
+    margin-top: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .nav-links a {
+    height: 40px;
+    font-size: 0.9rem;
+  }
+}
+
 /* Utilities */
 .container {
   width: 100%;
@@ -128,6 +149,12 @@ a {
   margin-bottom: 24px;
   box-shadow: var(--card-shadow);
   transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 20px;
+  }
 }
 
 .card h3 {

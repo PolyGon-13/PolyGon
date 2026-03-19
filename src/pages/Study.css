@@ -52,6 +52,17 @@
   box-shadow: 0 0 0 2px rgba(10, 102, 194, 0.1);
 }
 
+@media (max-width: 600px) {
+  .study-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+  .search-bar input {
+    width: 100%;
+  }
+}
+
 .sidebar-title {
   font-size: 1.15rem;
   margin-bottom: 16px;
