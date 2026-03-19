@@ -32,6 +32,9 @@ const Portfolio: React.FC = () => {
               backgroundColor: '#1f2937',
               color: '#ffffff',
               zIndex: 9999,
+              width: 'fit-content',
+              maxWidth: '200px',
+              whiteSpace: 'nowrap',
             }}
           />
         </div>
