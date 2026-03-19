@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { GitHubCalendar } from 'react-github-calendar';
+import 'react-github-calendar/tooltips.css';
 import './Portfolio.css';
 
 const Portfolio: React.FC = () => {
@@ -9,11 +11,11 @@ const Portfolio: React.FC = () => {
     <div className="container">
       <div className="profile-header card">
         <div className="profile-banner">
-          <img 
-            src="https://ghchart.rshah.org/PolyGon-13" 
-            alt="GitHub Contribution Chart" 
-            className="banner-img"
-            onError={(e) => (e.currentTarget.style.display = 'none')}
+          <GitHubCalendar 
+            username="PolyGon-13" 
+            labels={{
+              totalCount: '{{count}} contributions in the last year',
+            }}
           />
         </div>
         <div className="profile-info">
