@@ -17,11 +17,23 @@ const Portfolio: React.FC = () => {
             renderBlock={(block, activity) =>
               React.cloneElement(block, {
                 'data-tooltip-id': 'github-tooltip',
-                'data-tooltip-content': `${activity.date}: ${activity.count} contribution${activity.count !== 1 ? 's' : ''}`,
+                'data-tooltip-content': activity.count === 0
+                  ? `${activity.date}: No contributions`
+                  : `${activity.date}: ${activity.count} contribution${activity.count !== 1 ? 's' : ''}`,
               } as any)
             }
           />
-          <Tooltip id="github-tooltip" />
+          <Tooltip 
+            id="github-tooltip" 
+            style={{
+              fontSize: '12px',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              backgroundColor: '#1f2937',
+              color: '#ffffff',
+              zIndex: 9999,
+            }}
+          />
         </div>
         <div className="profile-info">
           <div className="profile-photo">
